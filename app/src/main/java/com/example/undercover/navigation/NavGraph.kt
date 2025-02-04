@@ -1,6 +1,5 @@
 package com.example.undercover.navigation
 
-import WordAssignmentScreen
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
@@ -10,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.undercover.ui.MainScreen
 import com.example.undercover.ui.PlayerSelectionScreen
+import com.example.undercover.ui.WordAssignmentScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -74,7 +74,10 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
                 "Navigating to WordAssignmentScreen with players: $players, is18Plus: $is18Plus"
             )
 
-            WordAssignmentScreen(players, is18Plus)
+            WordAssignmentScreen(players, is18Plus) {
+                Log.d("NavGraph", "Game is starting")
+                // Poți naviga către următorul ecran aici dacă este necesar
+            }
         }
     }
 }
