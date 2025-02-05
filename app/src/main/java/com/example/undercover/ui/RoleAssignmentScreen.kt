@@ -1,7 +1,27 @@
 package com.example.undercover.ui
 
-import androidx.compose.material3.AlertDialog
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -10,7 +30,14 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.undercover.data.Player
 import com.example.undercover.data.WordGenerator
 
@@ -32,39 +59,83 @@ fun RoleAssignmentScreen(
         showPopup = true
     }
 
-    if (showPopup && assignedPlayers.isNotEmpty()) {
-        AlertDialog(
-            onDismissRequest = {},
-            title = { Text("E rândul lui ${assignedPlayers[currentPlayerIndex].name}") },
-            text = {
-                if (revealedWord == null) {
-                    Text("Apasă pe 'Reveal Word' pentru a vedea cuvântul tău.")
-                } else {
-                    Text("Cuvântul tău este: $revealedWord")
-                }
-            },
-            confirmButton = {
-                if (revealedWord == null) {
-                    Button(onClick = {
-                        revealedWord = assignedPlayers[currentPlayerIndex].word
-                    }) {
-                        Text("Reveal Word")
-                    }
-                } else {
-                    Button(onClick = {
-                        revealedWord = null
-                        if (currentPlayerIndex < assignedPlayers.size - 1) {
-                            currentPlayerIndex++
-                        } else {
-                            showPopup = false
-                            onGameStart(assignedPlayers)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF121212)),
+        contentAlignment = Alignment.Center
+    ) {
+        AnimatedVisibility(
+            visible = showPopup && assignedPlayers.isNotEmpty(),
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.padding(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF2E2E2E))
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "E rândul lui ${assignedPlayers[currentPlayerIndex].name}",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = revealedWord
+                            ?: "Apasă pe 'Reveal Word' pentru a vedea cuvântul tău.",
+                        fontSize = 18.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(
+                        onClick = {
+                            if (revealedWord == null) {
+                                revealedWord = assignedPlayers[currentPlayerIndex].word
+                            } else {
+                                revealedWord = null
+                                if (currentPlayerIndex < assignedPlayers.size - 1) {
+                                    currentPlayerIndex++
+                                } else {
+                                    showPopup = false
+                                    onGameStart(assignedPlayers)
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFDD2C00)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = if (revealedWord == null) "Reveal Word" else "Next",
+                                fontSize = 18.sp,
+                                color = Color.White
+                            )
+                            if (revealedWord != null) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                    imageVector = Icons.Default.ArrowForward,
+                                    contentDescription = "Next",
+                                    tint = Color.White
+                                )
+                            }
                         }
-                    }) {
-                        Text("Next")
                     }
                 }
             }
-        )
+        }
     }
 }
 
@@ -76,26 +147,24 @@ fun assignRoles(
     val totalPlayers = players.size
     val roles = mutableListOf<String>()
 
-    // 1x Mr. White (dacă sunt cel puțin 5 jucători)
-    if (totalPlayers >= 5) {
-        roles.add("Mr. White")
+    val numMrWhite = when {
+        totalPlayers >= 11 -> 3
+        totalPlayers >= 8 -> 2
+        totalPlayers >= 5 -> 1
+        else -> 0
     }
 
-    // Calculăm numărul de Undercoveri (~20% din jucători, dar minim 1)
-    val numUndercover = maxOf(1, (totalPlayers * 0.2).toInt())
+    repeat(numMrWhite) { roles.add("Mr. White") }
+
+    val numUndercover = maxOf(1, ((totalPlayers - numMrWhite) * 0.2).toInt())
     repeat(numUndercover) { roles.add("Undercover") }
 
-    // Restul sunt Civili
     while (roles.size < totalPlayers) {
         roles.add("Civil")
     }
 
-    // Amestecăm rolurile
     roles.shuffle()
 
-    // Generăm cuvintele pentru civili și undercoveri
-//    val civilianWord = aiWordGenerator.generateWord("Generate a civilian word")
-//    val undercoverWord = aiWordGenerator.generateWord("Generate a similar word for undercover")
     val (civilianWord, undercoverWord) = wordGenerator.generateWords(totalPlayers)
 
     return players.mapIndexed { index, player ->
