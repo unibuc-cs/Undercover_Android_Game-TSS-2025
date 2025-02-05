@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -41,69 +42,72 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Introduceți numele jucătorilor", fontSize = 20.sp)
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        updatedPlayers.forEachIndexed { index, player ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .clickable {
-                        selectedCardIndex = index
-                        inputName = player.name
-                    },
-                shape = RoundedCornerShape(10.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (player.name == "") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-                )
-            ) {
-                Box(
+        LazyColumn(
+            modifier = Modifier.weight(1f), // Ocupă cât mai mult din ecran
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(updatedPlayers.size) { index ->
+                val player = updatedPlayers[index]
+                Card(
                     modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = if (player.name == "") "Jucător ${index + 1}" else player.name,
-                        fontSize = 18.sp
+                        .fillMaxWidth()
+                        .clickable {
+                            selectedCardIndex = index
+                            inputName = player.name
+                        },
+                    shape = RoundedCornerShape(10.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (player.name == "") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
                     )
-                }
-            }
-
-            if (selectedCardIndex == index && player.name == "") {
-                OutlinedTextField(
-                    value = inputName,
-                    onValueChange = { inputName = it },
-                    label = { Text("Introduceți numele") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Button(
-                    onClick = {
-                        if (inputName.isNotEmpty()) {
-                            updatedPlayers = updatedPlayers.toMutableList()
-                                .also { it[index] = player.copy(name = inputName) }
-                            selectedCardIndex = -1
-                        }
-                    },
-                    modifier = Modifier.padding(top = 8.dp),
-                    enabled = inputName.isNotEmpty()
                 ) {
-                    Text("Confirmă")
+                    Box(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (player.name == "") "Jucător ${index + 1}" else player.name,
+                            fontSize = 18.sp
+                        )
+                    }
+                }
+
+                if (selectedCardIndex == index && player.name == "") {
+                    OutlinedTextField(
+                        value = inputName,
+                        onValueChange = { inputName = it },
+                        label = { Text("Introduceți numele") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Button(
+                        onClick = {
+                            if (inputName.isNotEmpty()) {
+                                updatedPlayers = updatedPlayers.toMutableList()
+                                    .also { it[index] = player.copy(name = inputName) }
+                                selectedCardIndex = -1
+                            }
+                        },
+                        modifier = Modifier.padding(top = 8.dp),
+                        enabled = inputName.isNotEmpty()
+                    ) {
+                        Text("Confirmă")
+                    }
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Buton pentru adăugarea unui nou jucător
         Button(
             onClick = {
                 updatedPlayers = updatedPlayers + Player("", "", "")
@@ -126,5 +130,6 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
         }
     }
 }
+
 
 
