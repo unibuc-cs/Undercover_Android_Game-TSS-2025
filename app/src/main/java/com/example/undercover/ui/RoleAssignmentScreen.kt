@@ -31,7 +31,11 @@ import androidx.compose.ui.unit.sp
 import com.example.undercover.data.WordGenerator
 
 @Composable
-fun RoleAssignmentScreen(players: List<String>, is18Plus: Boolean, onGameStart: () -> Unit) {
+fun RoleAssignmentScreen(
+    players: List<String>,
+    is18Plus: Boolean,
+    onGameStart: (Map<String, String>) -> Unit
+) {
     val context = LocalContext.current
 //    val aiWordGenerator = remember { AiWordGenerator(context) }
     val wordGenerator = remember { WordGenerator(context) }
@@ -103,7 +107,7 @@ fun RoleAssignmentScreen(players: List<String>, is18Plus: Boolean, onGameStart: 
                             currentPlayerIndex++
                         } else {
                             showPopup = false
-                            onGameStart() // Începem jocul
+                            onGameStart(players.associateWith { assignedWords[it] ?: "" })
                         }
                     }) {
                         Text("Next")

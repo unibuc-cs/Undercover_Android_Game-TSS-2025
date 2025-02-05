@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.undercover.ui.GameScreen
 import com.example.undercover.ui.MainScreen
 import com.example.undercover.ui.PlayerSelectionScreen
 import com.example.undercover.ui.RoleAssignmentScreen
@@ -21,6 +22,13 @@ sealed class Screen(val route: String) {
         fun createRoute(players: List<String>, is18Plus: Boolean): String {
             val encodedPlayers = players.joinToString(",") // Transformă lista într-un string
             return "role_assignment_screen/$encodedPlayers/$is18Plus"
+        }
+    }
+
+    data object Game : Screen("game_screen/{players}") {
+        fun createRoute(players: Map<String, String>): String {
+            val encodedPlayers = players.entries.joinToString(";") { "${it.key},${it.value}" }
+            return "game_screen/$encodedPlayers"
         }
     }
 }
@@ -63,11 +71,29 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
             val players = playersString.split(",").map { it.trim() }
             val is18Plus = backStackEntry.arguments?.getBoolean("is18Plus") ?: false
 
-            RoleAssignmentScreen(players, is18Plus) {
-                // Navigăm la ecranul de joc după ce toți jucătorii și-au văzut rolurile
-                navController.navigate("game_screen")
+            RoleAssignmentScreen(players, is18Plus) { assignedPlayers ->
+                navController.navigate(Screen.Game.createRoute(assignedPlayers))
             }
         }
+
+        composable(
+            route = Screen.Game.route,
+            arguments = listOf(
+                navArgument("players") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val playersString = backStackEntry.arguments?.getString("players") ?: ""
+            val players = playersString.split(";").associate {
+                val (name, role) = it.split(",")
+                name to role
+            }
+
+            GameScreen(players) {
+                navController.navigate(Screen.Main.route) // Revine la ecranul principal după joc
+            }
+        }
+
+
     }
 }
 
