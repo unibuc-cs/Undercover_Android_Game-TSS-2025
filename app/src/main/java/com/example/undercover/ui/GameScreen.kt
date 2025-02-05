@@ -40,6 +40,8 @@ fun GameScreen(
     var showFeedbackDialog by remember { mutableStateOf(false) }
     var guessFeedback by remember { mutableStateOf("") }
     var showConfirmationDialog by remember { mutableStateOf(false) }
+    var showNavigateConfirmation by remember { mutableStateOf(false) }
+    var showResetConfirmation by remember { mutableStateOf(false) }
     var playerToEliminate by remember { mutableStateOf<Player?>(null) }
     var isForgetfulMode by remember { mutableStateOf(false) }
     var selectedPlayerForHint by remember { mutableStateOf<Player?>(null) }
@@ -176,18 +178,6 @@ fun GameScreen(
         }
 
         if (isForgetfulMode) {
-            Button(
-                onClick = { showHintDialog = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-                Text("Vezi cuvântul unui jucător")
-            }
-        }
-
-        // Dialog pentru selectarea unui jucător și afișarea cuvântului său
-        if (showHintDialog) {
             AlertDialog(
                 onDismissRequest = { showHintDialog = false },
                 title = { Text("Alege un jucător") },
@@ -207,12 +197,13 @@ fun GameScreen(
                     }
                 },
                 confirmButton = {
-                    Button(onClick = { showHintDialog = false }) {
+                    Button(onClick = { isForgetfulMode = false }) {
                         Text("Închide")
                     }
                 }
             )
         }
+
 
         // Dacă un jucător este selectat, arată-i cuvântul
         selectedPlayerForHint?.let { player ->
@@ -228,10 +219,9 @@ fun GameScreen(
             )
         }
 
-        // Butoane pentru resetare și navigare
         Button(
             enabled = isGameRunning,
-            onClick = onResetWords,
+            onClick = { showResetConfirmation = true },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
@@ -241,7 +231,7 @@ fun GameScreen(
 
         Button(
             enabled = isGameRunning,
-            onClick = onNavigateToPlayers,
+            onClick = { showNavigateConfirmation = true },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
@@ -254,6 +244,47 @@ fun GameScreen(
                 Text("Jocul s-a terminat")
             }
         }
+    }
 
+    if (showNavigateConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showNavigateConfirmation = false },
+            title = { Text("Confirmare") },
+            text = { Text("Ești sigur că vrei să te întorci la ecranul jucătorilor? Progresul jocului se poate pierde.") },
+            confirmButton = {
+                Button(onClick = {
+                    showNavigateConfirmation = false
+                    onNavigateToPlayers()
+                }) {
+                    Text("Da, mergi la Jucători")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showNavigateConfirmation = false }) {
+                    Text("Anulează")
+                }
+            }
+        )
+    }
+
+    if (showResetConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showResetCongafirmation = false },
+            title = { Text("Confirmare") },
+            text = { Text("Ești sigur că vrei să schimbi cuvintele atribuite jucătorilor?") },
+            confirmButton = {
+                Button(onClick = {
+                    showResetConfirmation = false
+                    onResetWords()
+                }) {
+                    Text("Da, schimbă cuvintele")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showResetConfirmation = false }) {
+                    Text("Anulează")
+                }
+            }
+        )
     }
 }
