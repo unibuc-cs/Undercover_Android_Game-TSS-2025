@@ -51,10 +51,8 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
 
         composable(
             route = Screen.PlayerSelection.route,
-            arguments = listOf(
-                navArgument("numPlayers") { type = NavType.IntType },
-                navArgument("is18Plus") { type = NavType.BoolType }
-            )
+            arguments = listOf(navArgument("numPlayers") { type = NavType.IntType },
+                navArgument("is18Plus") { type = NavType.BoolType })
         ) { backStackEntry ->
             val numPlayers = backStackEntry.arguments?.getInt("numPlayers") ?: 0
             val is18Plus = backStackEntry.arguments?.getBoolean("is18Plus") ?: false
@@ -62,9 +60,7 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
             PlayerSelectionScreen(numPlayers) { players ->
                 navController.navigate(Screen.RoleAssignment.createRoute(players.map {
                     Player(
-                        it,
-                        "",
-                        ""
+                        it, "", ""
                     )
                 }, is18Plus))
             }
@@ -72,10 +68,8 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
 
         composable(
             route = Screen.RoleAssignment.route,
-            arguments = listOf(
-                navArgument("players") { type = NavType.StringType },
-                navArgument("is18Plus") { type = NavType.BoolType }
-            )
+            arguments = listOf(navArgument("players") { type = NavType.StringType },
+                navArgument("is18Plus") { type = NavType.BoolType })
         ) { backStackEntry ->
             val playersJson = backStackEntry.arguments?.getString("players") ?: "[]"
             val playersType = object : TypeToken<List<Player>>() {}.type
@@ -87,11 +81,10 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
             }
         }
 
-        composable(
-            route = Screen.Game.route,
-            arguments = listOf(
-                navArgument("players") { type = NavType.StringType }
-            )
+        composable(route = Screen.Game.route,
+            arguments = listOf(navArgument("players") {
+                type = NavType.StringType
+            })
         ) { backStackEntry ->
             val playersJson = backStackEntry.arguments?.getString("players") ?: "[]"
             val decodedJson = URLDecoder.decode(playersJson, "UTF-8") // Decodează JSON-ul corect
