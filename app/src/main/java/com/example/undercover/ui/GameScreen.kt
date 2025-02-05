@@ -3,6 +3,7 @@ package com.example.undercover.ui
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,7 +27,12 @@ import com.example.undercover.data.Player
 
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun GameScreen(players: List<Player>, onGameEnd: () -> Unit) {
+fun GameScreen(
+    players: List<Player>,
+    onGameEnd: () -> Unit,
+    onResetWords: () -> Unit,
+    onNavigateToPlayers: () -> Unit
+) {
     val activePlayers by remember { mutableStateOf(players.toMutableList()) }
     val eliminatedPlayers by remember { mutableStateOf(mutableListOf<Player>()) }
     var mrWhiteGuess by remember { mutableStateOf("") }
@@ -34,6 +41,9 @@ fun GameScreen(players: List<Player>, onGameEnd: () -> Unit) {
     var guessFeedback by remember { mutableStateOf("") }
     var showConfirmationDialog by remember { mutableStateOf(false) }
     var playerToEliminate by remember { mutableStateOf<Player?>(null) }
+    var isForgetfulMode by remember { mutableStateOf(false) }
+    var selectedPlayerForHint by remember { mutableStateOf<Player?>(null) }
+    var showHintDialog by remember { mutableStateOf(false) }
 
     val startingPlayer = remember {
         activePlayers.filter { it.role != "Mr. White" }.randomOrNull()
@@ -150,6 +160,95 @@ fun GameScreen(players: List<Player>, onGameEnd: () -> Unit) {
         }
 
         // Verificăm condițiile de finalizare a jocului
+        if (activePlayers.size < 2 || activePlayers.none { it.role == "Undercover" } ||
+            (activePlayers.count { it.role == "Civilian" } == 1 && activePlayers.count { it.role == "Undercover" } == 1)) {
+            Button(onClick = onGameEnd) {
+                Text("Jocul s-a terminat")
+            }
+        }
+
+        // Modul Uituc - Afișează un switch pentru activare
+        Row(
+            modifier = Modifier.padding(vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Modul Uituc", fontSize = 16.sp)
+            Spacer(modifier = Modifier.padding(8.dp))
+            Switch(checked = isForgetfulMode, onCheckedChange = { isForgetfulMode = it })
+        }
+
+        if (isForgetfulMode) {
+            Button(
+                onClick = { showHintDialog = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Text("Vezi cuvântul unui jucător")
+            }
+        }
+
+        // Dialog pentru selectarea unui jucător și afișarea cuvântului său
+        if (showHintDialog) {
+            AlertDialog(
+                onDismissRequest = { showHintDialog = false },
+                title = { Text("Alege un jucător") },
+                text = {
+                    Column {
+                        activePlayers.forEach { player ->
+                            Button(
+                                onClick = {
+                                    selectedPlayerForHint = player
+                                    showHintDialog = false
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(player.name)
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = { showHintDialog = false }) {
+                        Text("Închide")
+                    }
+                }
+            )
+        }
+
+        // Dacă un jucător este selectat, arată-i cuvântul
+        selectedPlayerForHint?.let { player ->
+            AlertDialog(
+                onDismissRequest = { selectedPlayerForHint = null },
+                title = { Text("Cuvântul jucătorului ${player.name}") },
+                text = { Text("Cuvânt: ${player.word}") },
+                confirmButton = {
+                    Button(onClick = { selectedPlayerForHint = null }) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+
+        // Butoane pentru resetare și navigare
+        Button(
+            onClick = onResetWords,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            Text("Resetează Cuvintele")
+        }
+
+        Button(
+            onClick = onNavigateToPlayers,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            Text("Înapoi la Jucători")
+        }
+
         if (activePlayers.size < 2 || activePlayers.none { it.role == "Undercover" } ||
             (activePlayers.count { it.role == "Civilian" } == 1 && activePlayers.count { it.role == "Undercover" } == 1)) {
             Button(onClick = onGameEnd) {
