@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -74,7 +75,7 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                 }
             }
 
-            if (selectedCardIndex == index) {
+            if (selectedCardIndex == index && player.name == "") {
                 OutlinedTextField(
                     value = inputName,
                     onValueChange = { inputName = it },
@@ -98,6 +99,21 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                     Text("Confirmă")
                 }
             }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Buton pentru adăugarea unui nou jucător
+        Button(
+            onClick = {
+                updatedPlayers = updatedPlayers + Player("", "", "")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary) // Culoare diferită
+        ) {
+            Text("+", fontSize = 24.sp)
         }
 
         Spacer(modifier = Modifier.height(20.dp))
