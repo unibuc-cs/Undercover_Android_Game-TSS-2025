@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,7 +50,7 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
         Spacer(modifier = Modifier.height(20.dp))
 
         LazyColumn(
-            modifier = Modifier.weight(1f), // Ocupă cât mai mult din ecran
+            modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(updatedPlayers.size) { index ->
@@ -80,29 +81,39 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                 }
 
                 if (selectedCardIndex == index && player.name == "") {
-                    OutlinedTextField(
-                        value = inputName,
-                        onValueChange = { inputName = it },
-                        label = { Text("Introduceți numele") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = inputName,
+                            onValueChange = { inputName = it },
+                            label = { Text("Introduceți numele") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
-                    Button(
-                        onClick = {
-                            if (inputName.isNotEmpty()) {
-                                updatedPlayers = updatedPlayers.toMutableList()
-                                    .also { it[index] = player.copy(name = inputName) }
-                                selectedCardIndex = -1
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Button(
+                                onClick = {
+                                    if (inputName.isNotEmpty()) {
+                                        updatedPlayers = updatedPlayers.toMutableList()
+                                            .also { it[index] = player.copy(name = inputName) }
+                                        selectedCardIndex = -1
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth(0.5f)
+                                    .padding(top = 8.dp),
+                                enabled = inputName.isNotEmpty()
+                            ) {
+                                Text("Confirmă")
                             }
-                        },
-                        modifier = Modifier.padding(top = 8.dp),
-                        enabled = inputName.isNotEmpty()
-                    ) {
-                        Text("Confirmă")
+                        }
                     }
                 }
+
             }
         }
 
