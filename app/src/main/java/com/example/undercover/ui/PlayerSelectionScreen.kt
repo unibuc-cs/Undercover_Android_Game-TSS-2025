@@ -14,8 +14,8 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun PlayerSelectionScreen(numPlayers: Int, onPlayersSet: (List<String>) -> Unit) {
-    var players by remember { mutableStateOf(List(numPlayers) { "" }) }  // ✅ Gestionăm corect lista de stări
-    var selectedCardIndex by remember { mutableIntStateOf(-1) }
+    var players by remember { mutableStateOf(List(numPlayers) { "" }) }
+    var selectedIndex by remember { mutableIntStateOf(-1) }
     var inputName by remember { mutableStateOf("") }
 
     Column(
@@ -23,7 +23,7 @@ fun PlayerSelectionScreen(numPlayers: Int, onPlayersSet: (List<String>) -> Unit)
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Enter Player Names", fontSize = 20.sp)
+        Text(text = "Introduceți numele jucătorilor", fontSize = 22.sp)
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -32,10 +32,7 @@ fun PlayerSelectionScreen(numPlayers: Int, onPlayersSet: (List<String>) -> Unit)
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
-                    .clickable(enabled = name.isEmpty()) {
-                        selectedCardIndex = index
-                        inputName = ""  // ✅ Resetăm input-ul pentru fiecare player nou selectat
-                    },
+                    .clickable { selectedIndex = index },
                 shape = RoundedCornerShape(10.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = if (name.isEmpty()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
@@ -45,32 +42,33 @@ fun PlayerSelectionScreen(numPlayers: Int, onPlayersSet: (List<String>) -> Unit)
                     modifier = Modifier.padding(16.dp).fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = if (name.isEmpty()) "Player ${index + 1}" else name, fontSize = 18.sp)
+                    Text(text = if (name.isEmpty()) "Jucător ${index + 1}" else name, fontSize = 18.sp)
                 }
             }
 
             // Afișează input field doar pentru cardul selectat
-            if (selectedCardIndex == index) {
+            if (selectedIndex == index) {
                 OutlinedTextField(
                     value = inputName,
                     onValueChange = { inputName = it },
-                    label = { Text("Enter Name") },
+                    label = { Text("Introduceți numele") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
                 )
 
                 Button(
                     onClick = {
                         if (inputName.isNotEmpty()) {
-                            players = players.toMutableList().also { it[index] = inputName }  // ✅ Actualizăm corect lista
-                            selectedCardIndex = -1  // ✅ Resetăm selecția
+                            players = players.toMutableList().also { it[index] = inputName }
+                            selectedIndex = -1
+                            inputName = ""
                         }
                     },
                     modifier = Modifier.padding(top = 8.dp),
                     enabled = inputName.isNotEmpty()
                 ) {
-                    Text("Confirm")
+                    Text("Confirmă")
                 }
             }
         }
