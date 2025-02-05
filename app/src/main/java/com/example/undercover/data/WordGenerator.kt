@@ -1,25 +1,30 @@
 package com.example.undercover.data
 
-object WordGenerator {
-    private val wordPairs = listOf(
-        "Laptop" to "Tableta",
-        "Călătorie" to "Vacanță",
-        "Actor" to "Regizor",
-        "Bere" to "Whiskey",
-        "Telefon" to "Smartphone",
-        "Doctor" to "Asistent",
-        "Masă" to "Birou",
-        "Pisică" to "Leu"
-    )
+import android.content.Context
+import java.io.BufferedReader
+import java.io.InputStreamReader
 
-    fun generateWords(numPlayers: Int): List<String> {
-        val selectedPair = wordPairs.random()
-        val words = mutableListOf<String>()
+class WordGenerator(context: Context) {
+    private var wordPairs: List<Pair<String, String>> = emptyList()
 
-        val undercoverIndex = (0 until numPlayers).random()
-        repeat(numPlayers) { index ->
-            words.add(if (index == undercoverIndex) selectedPair.second else selectedPair.first)
+    init {
+        loadWordsFromFile(context)
+    }
+
+    private fun loadWordsFromFile(context: Context) {
+        val inputStream = context.assets.open("similar_words.csv")
+        val reader = BufferedReader(InputStreamReader(inputStream))
+        wordPairs = reader.readLines().mapNotNull { line ->
+            val words = line.split(",")
+            if (words.size == 2) words[0].trim() to words[1].trim() else null
         }
-        return words.shuffled()
+        reader.close()
+    }
+
+    fun generateWords(numPlayers: Int): Pair<String, String> {
+        if (wordPairs.isEmpty()) throw IllegalStateException("Word list not loaded")
+
+        return wordPairs.random()
+
     }
 }
