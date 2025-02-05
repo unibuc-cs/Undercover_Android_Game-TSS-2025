@@ -1,5 +1,6 @@
 package com.example.undercover.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,8 @@ import com.example.undercover.data.Player
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) -> Unit) {
+    BackHandler(enabled = true) {
+    }
     var updatedPlayers by remember { mutableStateOf(players) }
     var selectedCardIndex by remember { mutableIntStateOf(-1) }
     var inputName by remember { mutableStateOf("") }

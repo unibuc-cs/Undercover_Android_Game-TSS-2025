@@ -1,6 +1,9 @@
 package com.example.undercover.ui
 
+
 import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,10 +11,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -37,7 +43,7 @@ import androidx.compose.ui.unit.sp
 import com.example.undercover.data.Player
 
 @SuppressLint("MutableCollectionMutableState")
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun GameScreen(
     players: List<Player>,
@@ -45,7 +51,8 @@ fun GameScreen(
     onResetWords: () -> Unit,
     onNavigateToPlayers: () -> Unit
 ) {
-    // Folosim mutableStateListOf pentru a putea actualiza listele din UI
+    BackHandler(enabled = true) {
+    }
     val activePlayers = remember { mutableStateListOf(*players.toTypedArray()) }
     val eliminatedPlayers = remember { mutableStateListOf<Player>() }
 
@@ -60,13 +67,11 @@ fun GameScreen(
     var isForgetfulMode by remember { mutableStateOf(false) }
     var selectedPlayerForHint by remember { mutableStateOf<Player?>(null) }
 
-    // Condiția de rulare a jocului
     val undercoverCount = activePlayers.count { it.role == "Undercover" }
     val civilianCount = activePlayers.count { it.role == "Civil" }
     val isGameRunning =
         activePlayers.size >= 2 && undercoverCount > 0 && undercoverCount < civilianCount
 
-    // Selectăm aleator un jucător (cu excepția lui Mr. White) pentru a începe jocul
     val startingPlayer = remember {
         activePlayers.filter { it.role != "Mr. White" }.randomOrNull()
     }
@@ -82,69 +87,25 @@ fun GameScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Card pentru afișarea jucătorului care începe
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("Jucătorul care începe:", fontSize = 20.sp)
-                        Text(
-                            text = startingPlayer?.name ?: "Niciun jucător",
-                            fontSize = 24.sp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                }
+                StartingPlayerCard(startingPlayer)
 
-                // Card cu lista jucătorilor activi
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Jucători activi:", fontSize = 18.sp)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        LazyColumn {
-                            items(activePlayers) { player ->
-                                Button(
-                                    onClick = {
-                                        playerToEliminate = player
-                                        showEliminationConfirmation = true
-                                    },
-                                    enabled = isGameRunning,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 4.dp)
-                                ) {
-                                    Text(player.name)
-                                }
-                            }
-                        }
+                ActivePlayersCard(
+                    activePlayers = activePlayers,
+                    isGameRunning = isGameRunning,
+                    onPlayerClick = { player ->
+                        playerToEliminate = player
+                        showEliminationConfirmation = true
                     }
-                }
+                )
 
-                // Card cu lista jucătorilor eliminați (doar dacă există)
+
                 if (eliminatedPlayers.isNotEmpty()) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Eliminați:", fontSize = 18.sp)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            eliminatedPlayers.forEach { player ->
-                                Text("${player.name} - ${player.role}", fontSize = 16.sp)
-                            }
-                        }
-                    }
+                    EliminatedPlayersCard(eliminatedPlayers)
                 }
 
                 // Modul "Uituc" – switch pentru activare
@@ -159,10 +120,9 @@ fun GameScreen(
                     )
                 }
 
-                // Rând cu butoanele pentru resetarea cuvintelor și navigarea la ecranul jucătorilor
-                Row(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     OutlinedButton(
                         onClick = { showResetConfirmation = true },
@@ -176,25 +136,23 @@ fun GameScreen(
                     ) {
                         Text("Înapoi la Jucători")
                     }
-                }
-
-                // Dacă jocul nu mai poate continua, afișăm butonul de terminare
-                if (!isGameRunning) {
-                    Button(
-                        onClick = onGameEnd,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Jocul s-a terminat")
+                    if (!isGameRunning) {
+                        Button(
+                            onClick = onGameEnd
+                        ) {
+                            Text("Jocul s-a terminat")
+                        }
                     }
                 }
+
+
             }
         }
     )
 
-    // Dialogul pentru ghicirea de către Mr. White
     if (showGuessDialog) {
         AlertDialog(
-            onDismissRequest = { /* Nu permite închiderea pe click în afara dialogului */ },
+            onDismissRequest = { },
             title = { Text("Mr. White trebuie să ghicească cuvântul civililor!") },
             text = {
                 OutlinedTextField(
@@ -213,6 +171,7 @@ fun GameScreen(
                     } else {
                         "Mr. White a greșit! Jocul continuă."
                     }
+                    mrWhiteGuess = ""
                     showFeedbackDialog = true
                 }) {
                     Text("Trimite răspunsul")
@@ -221,7 +180,6 @@ fun GameScreen(
         )
     }
 
-    // Dialogul pentru afișarea feedback-ului după ghicire
     if (showFeedbackDialog) {
         AlertDialog(
             onDismissRequest = { showFeedbackDialog = false },
@@ -279,7 +237,7 @@ fun GameScreen(
             title = { Text("Alege un jucător pentru a vedea cuvântul") },
             text = {
                 LazyColumn {
-                    items(activePlayers) { player ->
+                    itemsIndexed(activePlayers) { _, player ->
                         Button(
                             onClick = {
                                 selectedPlayerForHint = player
@@ -356,5 +314,79 @@ fun GameScreen(
                 }
             }
         )
+    }
+}
+
+// Componentele extrase
+
+@Composable
+fun StartingPlayerCard(startingPlayer: Player?) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text("Jucătorul care începe:", fontSize = 20.sp)
+            Text(
+                text = startingPlayer?.name ?: "Niciun jucător",
+                fontSize = 24.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+@Composable
+fun ActivePlayersCard(
+    activePlayers: List<Player>,
+    isGameRunning: Boolean,
+    onPlayerClick: (Player) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Jucători activi:", fontSize = 18.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            LazyColumn(
+                modifier = Modifier.heightIn(max = 300.dp)
+            ) {
+                itemsIndexed(activePlayers) { _, player ->
+                    Button(
+                        onClick = { onPlayerClick(player) },
+                        enabled = isGameRunning,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text(player.name)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EliminatedPlayersCard(eliminatedPlayers: List<Player>) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Eliminați:", fontSize = 18.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            LazyColumn(
+                modifier = Modifier.heightIn(max = 70.dp)
+            ) {
+                itemsIndexed(eliminatedPlayers) { _, player ->
+                    Text("${player.name} - ${player.role}", fontSize = 16.sp)
+                }
+            }
+        }
     }
 }

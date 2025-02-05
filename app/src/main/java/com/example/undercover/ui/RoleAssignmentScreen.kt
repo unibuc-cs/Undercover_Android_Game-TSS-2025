@@ -1,5 +1,6 @@
 package com.example.undercover.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -47,6 +48,8 @@ fun RoleAssignmentScreen(
     is18Plus: Boolean,
     onGameStart: (List<Player>) -> Unit
 ) {
+    BackHandler(enabled = true) {
+    }
     val context = LocalContext.current
     val wordGenerator = remember { WordGenerator(context) }
     var assignedPlayers by remember { mutableStateOf(emptyList<Player>()) }
@@ -156,7 +159,7 @@ fun assignRoles(
 
     repeat(numMrWhite) { roles.add("Mr. White") }
 
-    val numUndercover = maxOf(1, ((totalPlayers - numMrWhite) * 0.2).toInt())
+    val numUndercover = maxOf(1, (totalPlayers * 0.2).toInt())
     repeat(numUndercover) { roles.add("Undercover") }
 
     while (roles.size < totalPlayers) {
