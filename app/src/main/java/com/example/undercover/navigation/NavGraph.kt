@@ -6,10 +6,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.undercover.data.Player
 import com.example.undercover.ui.GameScreen
 import com.example.undercover.ui.MainScreen
 import com.example.undercover.ui.PlayerSelectionScreen
 import com.example.undercover.ui.RoleAssignmentScreen
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.net.URLDecoder
+import java.net.URLEncoder
 
 sealed class Screen(val route: String) {
     data object Main : Screen("main_screen")
@@ -19,20 +24,19 @@ sealed class Screen(val route: String) {
     }
 
     data object RoleAssignment : Screen("role_assignment_screen/{players}/{is18Plus}") {
-        fun createRoute(players: List<String>, is18Plus: Boolean): String {
-            val encodedPlayers = players.joinToString(",") // Transformă lista într-un string
-            return "role_assignment_screen/$encodedPlayers/$is18Plus"
+        fun createRoute(players: List<Player>, is18Plus: Boolean): String {
+            val encodedPlayers = Gson().toJson(players) // Serializăm lista de Player
+            return "role_assignment_screen/${URLEncoder.encode(encodedPlayers, "UTF-8")}/$is18Plus"
         }
     }
 
     data object Game : Screen("game_screen/{players}") {
-        fun createRoute(players: Map<String, String>): String {
-            val encodedPlayers = players.entries.joinToString(";") { "${it.key},${it.value}" }
-            return "game_screen/$encodedPlayers"
+        fun createRoute(players: List<Player>): String {
+            val encodedPlayers = Gson().toJson(players) // Serializăm lista de Player
+            return "game_screen/${URLEncoder.encode(encodedPlayers, "UTF-8")}"
         }
     }
 }
-
 
 @Composable
 fun NavGraph(startDestination: String = Screen.Main.route) {
@@ -56,7 +60,13 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
             val is18Plus = backStackEntry.arguments?.getBoolean("is18Plus") ?: false
 
             PlayerSelectionScreen(numPlayers) { players ->
-                navController.navigate(Screen.RoleAssignment.createRoute(players, is18Plus))
+                navController.navigate(Screen.RoleAssignment.createRoute(players.map {
+                    Player(
+                        it,
+                        "",
+                        ""
+                    )
+                }, is18Plus))
             }
         }
 
@@ -67,8 +77,9 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
                 navArgument("is18Plus") { type = NavType.BoolType }
             )
         ) { backStackEntry ->
-            val playersString = backStackEntry.arguments?.getString("players") ?: ""
-            val players = playersString.split(",").map { it.trim() }
+            val playersJson = backStackEntry.arguments?.getString("players") ?: "[]"
+            val playersType = object : TypeToken<List<Player>>() {}.type
+            val players: List<Player> = Gson().fromJson(playersJson, playersType)
             val is18Plus = backStackEntry.arguments?.getBoolean("is18Plus") ?: false
 
             RoleAssignmentScreen(players, is18Plus) { assignedPlayers ->
@@ -82,18 +93,15 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
                 navArgument("players") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val playersString = backStackEntry.arguments?.getString("players") ?: ""
-            val players = playersString.split(";").associate {
-                val (name, role) = it.split(",")
-                name to role
-            }
+            val playersJson = backStackEntry.arguments?.getString("players") ?: "[]"
+            val decodedJson = URLDecoder.decode(playersJson, "UTF-8") // Decodează JSON-ul corect
+            val playersType = object : TypeToken<List<Player>>() {}.type
+            val players: List<Player> = Gson().fromJson(decodedJson, playersType)
+
 
             GameScreen(players) {
-                navController.navigate(Screen.Main.route) // Revine la ecranul principal după joc
+                navController.navigate(Screen.RoleAssignment.createRoute(players, false))
             }
         }
-
-
     }
 }
-
