@@ -269,7 +269,7 @@ fun GameScreen(
 
     if (showResetConfirmation) {
         AlertDialog(
-            onDismissRequest = { showResetCongafirmation = false },
+            onDismissRequest = { showResetConfirmation = false },
             title = { Text("Confirmare") },
             text = { Text("Ești sigur că vrei să schimbi cuvintele atribuite jucătorilor?") },
             confirmButton = {
