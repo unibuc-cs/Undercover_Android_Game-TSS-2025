@@ -18,13 +18,19 @@ class WordGenerator(context: Context) {
             val words = line.split(",")
             if (words.size == 2) words[0].trim() to words[1].trim() else null
         }
+        wordPairs.shuffled()
         reader.close()
     }
 
     fun generateWords(numPlayers: Int): Pair<String, String> {
         if (wordPairs.isEmpty()) throw IllegalStateException("Word list not loaded")
+        var pair = wordPairs.random();
 
-        return wordPairs.random()
+        if ((0..1).random() == 1) {
+            pair = pair.second to pair.first
+        }
 
+        return pair
     }
+
 }
