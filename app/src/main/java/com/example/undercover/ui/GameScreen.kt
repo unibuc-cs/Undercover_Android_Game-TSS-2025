@@ -44,6 +44,11 @@ fun GameScreen(
     var isForgetfulMode by remember { mutableStateOf(false) }
     var selectedPlayerForHint by remember { mutableStateOf<Player?>(null) }
     var showHintDialog by remember { mutableStateOf(false) }
+    val undercoverCount = activePlayers.count { it.role == "Undercover" }
+    val civilianCount = activePlayers.count { it.role == "Civil" }
+    val isGameRunning =
+        activePlayers.size >= 2 && undercoverCount > 0 && undercoverCount < civilianCount
+
 
     val startingPlayer = remember {
         activePlayers.filter { it.role != "Mr. White" }.randomOrNull()
@@ -67,6 +72,7 @@ fun GameScreen(
                     playerToEliminate = player
                     showConfirmationDialog = true
                 },
+                enabled = isGameRunning,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
@@ -159,14 +165,6 @@ fun GameScreen(
             )
         }
 
-        // Verificăm condițiile de finalizare a jocului
-        if (activePlayers.size < 2 || activePlayers.none { it.role == "Undercover" } ||
-            (activePlayers.count { it.role == "Civilian" } == 1 && activePlayers.count { it.role == "Undercover" } == 1)) {
-            Button(onClick = onGameEnd) {
-                Text("Jocul s-a terminat")
-            }
-        }
-
         // Modul Uituc - Afișează un switch pentru activare
         Row(
             modifier = Modifier.padding(vertical = 16.dp),
@@ -232,6 +230,7 @@ fun GameScreen(
 
         // Butoane pentru resetare și navigare
         Button(
+            enabled = isGameRunning,
             onClick = onResetWords,
             modifier = Modifier
                 .fillMaxWidth()
@@ -241,6 +240,7 @@ fun GameScreen(
         }
 
         Button(
+            enabled = isGameRunning,
             onClick = onNavigateToPlayers,
             modifier = Modifier
                 .fillMaxWidth()
@@ -249,11 +249,11 @@ fun GameScreen(
             Text("Înapoi la Jucători")
         }
 
-        if (activePlayers.size < 2 || activePlayers.none { it.role == "Undercover" } ||
-            (activePlayers.count { it.role == "Civilian" } == 1 && activePlayers.count { it.role == "Undercover" } == 1)) {
+        if (!isGameRunning) {
             Button(onClick = onGameEnd) {
                 Text("Jocul s-a terminat")
             }
         }
+
     }
 }

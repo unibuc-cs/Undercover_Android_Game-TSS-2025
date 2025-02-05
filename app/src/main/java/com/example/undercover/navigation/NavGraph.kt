@@ -106,7 +106,14 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
 
             GameScreen(
                 players = players,
-                onGameEnd = { navController.navigate(Screen.Main.route) },
+                onGameEnd = {
+                    navController.navigate(
+                        Screen.PlayerSelection.createRoute(
+                            players,
+                            false
+                        )
+                    )
+                },
                 onResetWords = {
                     navController.navigate(
                         Screen.RoleAssignment.createRoute(
