@@ -1,6 +1,8 @@
 package com.example.undercover.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -33,11 +36,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.undercover.data.Player
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) -> Unit) {
     var updatedPlayers by remember { mutableStateOf(players) }
     var selectedCardIndex by remember { mutableIntStateOf(-1) }
     var inputName by remember { mutableStateOf("") }
+    var showOptionsDialog by remember { mutableStateOf(false) }
+    var selectedPlayerIndex by remember { mutableIntStateOf(-1) }
 
     Column(
         modifier = Modifier
@@ -61,7 +67,17 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                         .clickable {
                             selectedCardIndex = index
                             inputName = player.name
-                        },
+                        }
+                        .combinedClickable(
+                            onClick = {
+                                selectedCardIndex = index
+                                inputName = player.name
+                            },
+                            onLongClick = {
+                                selectedPlayerIndex = index
+                                showOptionsDialog = true
+                            }
+                        ),
                     shape = RoundedCornerShape(10.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = if (player.name == "") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
@@ -113,7 +129,6 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                         }
                     }
                 }
-
             }
         }
 
@@ -140,6 +155,56 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
             Text("Începe jocul")
         }
     }
+
+    if (showOptionsDialog) {
+        AlertDialog(
+            onDismissRequest = { showOptionsDialog = false },
+            title = { Text("Opțiuni pentru ${updatedPlayers[selectedPlayerIndex].name}") },
+            text = { Text("Ce dorești să faci?") },
+            confirmButton = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            inputName = ""
+                            updatedPlayers[selectedPlayerIndex].name = ""
+                            selectedCardIndex = selectedPlayerIndex
+                            showOptionsDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Editează")
+                    }
+
+                    Button(
+                        onClick = {
+                            updatedPlayers = updatedPlayers.toMutableList()
+                                .also { it.removeAt(selectedPlayerIndex) }
+                            showOptionsDialog = false
+                        },
+                        enabled = updatedPlayers.size > 3,
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Șterge")
+                    }
+
+                    Button(
+                        onClick = { showOptionsDialog = false },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Anulează")
+                    }
+                }
+            },
+            dismissButton = {}
+        )
+    }
+
 }
 
 
