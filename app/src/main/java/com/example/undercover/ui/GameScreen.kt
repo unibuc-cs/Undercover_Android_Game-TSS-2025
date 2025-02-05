@@ -30,6 +30,8 @@ fun GameScreen(players: List<Player>, onGameEnd: () -> Unit) {
     val eliminatedPlayers by remember { mutableStateOf(mutableListOf<Player>()) }
     var mrWhiteGuess by remember { mutableStateOf("") }
     var showGuessDialog by remember { mutableStateOf(false) }
+    var showFeedbackDialog by remember { mutableStateOf(false) }
+    var guessFeedback by remember { mutableStateOf("") }
     var showConfirmationDialog by remember { mutableStateOf(false) }
     var playerToEliminate by remember { mutableStateOf<Player?>(null) }
 
@@ -45,7 +47,6 @@ fun GameScreen(players: List<Player>, onGameEnd: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Jucătorul care începe: ${startingPlayer?.name}", fontSize = 20.sp)
-        Text(text = "Cuvantu: ${startingPlayer?.word}", fontSize = 20.sp)
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -83,8 +84,35 @@ fun GameScreen(players: List<Player>, onGameEnd: () -> Unit) {
                     )
                 },
                 confirmButton = {
-                    Button(onClick = { showGuessDialog = false }) {
+                    Button(onClick = {
+                        showGuessDialog = false
+                        val civilianWord = activePlayers.find { it.role == "Civil" }?.word
+                        guessFeedback = if (mrWhiteGuess.equals(civilianWord, ignoreCase = true)) {
+                            "Felicitări! Mr. White a ghicit corect și câștigă jocul!"
+                        } else {
+                            "Mr. White a greșit! Jocul continuă."
+                        }
+                        showFeedbackDialog = true
+                    }) {
                         Text("Trimite răspunsul")
+                    }
+                }
+            )
+        }
+
+        if (showFeedbackDialog) {
+            AlertDialog(
+                onDismissRequest = { showFeedbackDialog = false },
+                title = { Text("Rezultat") },
+                text = { Text(guessFeedback) },
+                confirmButton = {
+                    Button(onClick = {
+                        showFeedbackDialog = false
+                        if (guessFeedback.contains("câștigă")) {
+                            onGameEnd()
+                        }
+                    }) {
+                        Text("OK")
                     }
                 }
             )
@@ -121,8 +149,7 @@ fun GameScreen(players: List<Player>, onGameEnd: () -> Unit) {
             )
         }
 
-        //game and if one civilian and one undercover are left
-
+        // Verificăm condițiile de finalizare a jocului
         if (activePlayers.size < 2 || activePlayers.none { it.role == "Undercover" } ||
             (activePlayers.count { it.role == "Civilian" } == 1 && activePlayers.count { it.role == "Undercover" } == 1)) {
             Button(onClick = onGameEnd) {
