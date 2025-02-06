@@ -69,8 +69,9 @@ fun GameScreen(
 
     val undercoverCount = activePlayers.count { it.role == "Undercover" }
     val civilianCount = activePlayers.count { it.role == "Civil" }
+    val mrWhiteCount = activePlayers.count { it.role == "Mr. White" }
     val isGameRunning =
-        activePlayers.size >= 2 && undercoverCount > 0 && undercoverCount < civilianCount
+        activePlayers.size > 2 && undercoverCount < civilianCount + mrWhiteCount
 
     val startingPlayer = remember {
         activePlayers.filter { it.role != "Mr. White" }.randomOrNull()
