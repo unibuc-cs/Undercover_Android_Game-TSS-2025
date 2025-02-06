@@ -167,6 +167,8 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
             val decodedJson = URLDecoder.decode(playersJson, "UTF-8")
             val playersType = object : TypeToken<List<Player>>() {}.type
             val players: List<Player> = Gson().fromJson(decodedJson, playersType)
+            val numUndercover = players.count { it.role == "Undercover" }
+            val numMrWhite = players.count { it.role == "Mr. White" }
 
             GameScreen(
                 players = players,
@@ -174,7 +176,14 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
                     navController.navigate(Screen.PlayerSelection.createRoute(players, false))
                 },
                 onResetWords = {
-                    navController.navigate(Screen.RoleAssignment.createRoute(players, false, 1, 0))
+                    navController.navigate(
+                        Screen.RoleAssignment.createRoute(
+                            players,
+                            false,
+                            numUndercover,
+                            numMrWhite
+                        )
+                    )
                 },
                 onNavigateToPlayers = {
                     navController.navigate(Screen.PlayerSelection.createRoute(players, false))
