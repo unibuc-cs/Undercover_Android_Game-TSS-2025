@@ -46,6 +46,8 @@ import com.example.undercover.data.WordGenerator
 fun RoleAssignmentScreen(
     players: List<Player>,
     is18Plus: Boolean,
+    numUndercover: Int,
+    numMrWhite: Int,
     onGameStart: (List<Player>) -> Unit
 ) {
     BackHandler(enabled = true) {
@@ -58,7 +60,7 @@ fun RoleAssignmentScreen(
     var revealedWord by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(players) {
-        assignedPlayers = assignRoles(players, wordGenerator, is18Plus)
+        assignedPlayers = assignRoles(players, wordGenerator, is18Plus, numUndercover, numMrWhite)
         showPopup = true
     }
 
@@ -145,23 +147,20 @@ fun RoleAssignmentScreen(
 fun assignRoles(
     players: List<Player>,
     wordGenerator: WordGenerator,
-    is18Plus: Boolean
+    is18Plus: Boolean,
+    numUndercover: Int,
+    numMrWhite: Int
 ): List<Player> {
     val totalPlayers = players.size
     val roles = mutableListOf<String>()
 
-    val numMrWhite = when {
-        totalPlayers >= 11 -> 3
-        totalPlayers >= 8 -> 2
-        totalPlayers >= 5 -> 1
-        else -> 0
-    }
-
+    // Adăugăm Mr. White
     repeat(numMrWhite) { roles.add("Mr. White") }
 
-    val numUndercover = maxOf(1, (totalPlayers * 0.2).toInt())
+    // Adăugăm Undercover
     repeat(numUndercover) { roles.add("Undercover") }
 
+    // Restul sunt Civili
     while (roles.size < totalPlayers) {
         roles.add("Civil")
     }
