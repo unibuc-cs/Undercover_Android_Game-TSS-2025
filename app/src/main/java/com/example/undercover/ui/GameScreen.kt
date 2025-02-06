@@ -69,11 +69,12 @@ fun GameScreen(
 
     val undercoverCount = activePlayers.count { it.role == "Undercover" }
     val civilianCount = activePlayers.count { it.role == "Civil" }
+    val mrWhiteCount = activePlayers.count { it.role == "Mr. White" }
     val isGameRunning =
-        activePlayers.size >= 2 && undercoverCount > 0 && undercoverCount < civilianCount
+        activePlayers.size > 2 && undercoverCount < civilianCount + mrWhiteCount
 
-    val startingPlayer = remember {
-        activePlayers.filter { it.role != "Mr. White" }.randomOrNull()
+    var startingPlayer by remember {
+        mutableStateOf(activePlayers.filter { it.role != "Mr. White" }.randomOrNull())
     }
 
     Scaffold(
@@ -206,9 +207,13 @@ fun GameScreen(
             text = { Text("${playerToEliminate?.name}") },
             confirmButton = {
                 Button(onClick = {
-                    playerToEliminate?.let {
+                    playerToEliminate?.let { it ->
                         activePlayers.remove(it)
                         eliminatedPlayers.add(it)
+                        if (it == startingPlayer) {
+                            startingPlayer =
+                                activePlayers.filter { it.role != "Mr. White" }.randomOrNull()
+                        }
                         if (it.role == "Mr. White") {
                             showGuessDialog = true
                         }
@@ -230,7 +235,7 @@ fun GameScreen(
         )
     }
 
-    // Dacă modul "Uituc" este activat, afișăm un dialog în care se poate alege un jucător pentru a vedea cuvântul
+// Dacă modul "Uituc" este activat, afișăm un dialog în care se poate alege un jucător pentru a vedea cuvântul
     if (isForgetfulMode && activePlayers.isNotEmpty()) {
         AlertDialog(
             onDismissRequest = { isForgetfulMode = false },
@@ -260,7 +265,7 @@ fun GameScreen(
         )
     }
 
-    // Dialog pentru afișarea cuvântului jucătorului selectat (din modul "Uituc")
+// Dialog pentru afișarea cuvântului jucătorului selectat (din modul "Uituc")
     selectedPlayerForHint?.let { player ->
         AlertDialog(
             onDismissRequest = { selectedPlayerForHint = null },
