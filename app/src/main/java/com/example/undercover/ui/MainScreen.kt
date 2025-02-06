@@ -38,9 +38,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-
-//todo 2: make the apk
-//todo 3: custom number of civil
 @Composable
 fun MainScreen(onStartGame: (Int, Boolean) -> Unit) {
     var numPlayers by remember { mutableStateOf("") }
