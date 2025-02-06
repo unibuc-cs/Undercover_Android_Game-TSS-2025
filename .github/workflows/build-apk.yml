@@ -3,7 +3,7 @@ name: Build and Upload APK on PR
 on:
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   build:
