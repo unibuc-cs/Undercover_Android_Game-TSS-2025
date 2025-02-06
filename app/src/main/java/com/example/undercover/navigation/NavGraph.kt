@@ -11,6 +11,7 @@ import com.example.undercover.ui.GameScreen
 import com.example.undercover.ui.MainScreen
 import com.example.undercover.ui.PlayerSelectionScreen
 import com.example.undercover.ui.RoleAssignmentScreen
+import com.example.undercover.ui.RoleConfigurationScreen
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.net.URLDecoder
@@ -25,16 +26,39 @@ sealed class Screen(val route: String) {
         }
     }
 
-    data object RoleAssignment : Screen("role_assignment_screen/{players}/{is18Plus}") {
+    data object RoleConfiguration : Screen("role_configuration_screen/{players}/{is18Plus}") {
         fun createRoute(players: List<Player>, is18Plus: Boolean): String {
-            val encodedPlayers = Gson().toJson(players) // Serializăm lista de Player
-            return "role_assignment_screen/${URLEncoder.encode(encodedPlayers, "UTF-8")}/$is18Plus"
+            val encodedPlayers = Gson().toJson(players)
+            return "role_configuration_screen/${
+                URLEncoder.encode(
+                    encodedPlayers,
+                    "UTF-8"
+                )
+            }/$is18Plus"
+        }
+    }
+
+    data object RoleAssignment :
+        Screen("role_assignment_screen/{players}/{is18Plus}/{numUndercover}/{numMrWhite}") {
+        fun createRoute(
+            players: List<Player>,
+            is18Plus: Boolean,
+            numUndercover: Int,
+            numMrWhite: Int
+        ): String {
+            val encodedPlayers = Gson().toJson(players)
+            return "role_assignment_screen/${
+                URLEncoder.encode(
+                    encodedPlayers,
+                    "UTF-8"
+                )
+            }/$is18Plus/$numUndercover/$numMrWhite"
         }
     }
 
     data object Game : Screen("game_screen/{players}") {
         fun createRoute(players: List<Player>): String {
-            val encodedPlayers = Gson().toJson(players) // Serializăm lista de Player
+            val encodedPlayers = Gson().toJson(players)
             return "game_screen/${URLEncoder.encode(encodedPlayers, "UTF-8")}"
         }
     }
@@ -68,36 +92,76 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
             PlayerSelectionScreen(
                 players = players,
                 onPlayersSet = { updatedPlayers ->
-                    val newRoute = Screen.RoleAssignment.createRoute(updatedPlayers, is18Plus)
-                    navController.navigate(newRoute) {
-                        popUpTo(Screen.PlayerSelection.route) { inclusive = true }
-                    }
+                    navController.navigate(
+                        Screen.RoleConfiguration.createRoute(
+                            updatedPlayers,
+                            is18Plus
+                        )
+                    )
                 }
             )
         }
 
+        composable(
+            route = Screen.RoleConfiguration.route,
+            arguments = listOf(
+                navArgument("players") { type = NavType.StringType },
+                navArgument("is18Plus") { type = NavType.BoolType }
+            )
+        ) { backStackEntry ->
+            val playersJson = backStackEntry.arguments?.getString("players") ?: "[]"
+            val decodedPlayersJson = URLDecoder.decode(playersJson, "UTF-8")
+            val playersType = object : TypeToken<List<Player>>() {}.type
+            val players: List<Player> = Gson().fromJson(decodedPlayersJson, playersType)
+            val is18Plus = backStackEntry.arguments?.getBoolean("is18Plus") ?: false
 
+            RoleConfigurationScreen(
+                players = players,
+                is18Plus = is18Plus,
+                onRolesConfigured = { updatedPlayers, numUndercover, numMrWhite ->
+                    navController.navigate(
+                        Screen.RoleAssignment.createRoute(
+                            updatedPlayers,
+                            is18Plus,
+                            numUndercover,
+                            numMrWhite
+                        )
+                    )
+                }
+            )
+        }
 
         composable(
             route = Screen.RoleAssignment.route,
-            arguments = listOf(navArgument("players") { type = NavType.StringType },
-                navArgument("is18Plus") { type = NavType.BoolType })
+            arguments = listOf(
+                navArgument("players") { type = NavType.StringType },
+                navArgument("is18Plus") { type = NavType.BoolType },
+                navArgument("numUndercover") { type = NavType.IntType },
+                navArgument("numMrWhite") { type = NavType.IntType }
+            )
         ) { backStackEntry ->
             val playersJson = backStackEntry.arguments?.getString("players") ?: "[]"
+            val decodedPlayersJson = URLDecoder.decode(playersJson, "UTF-8")
             val playersType = object : TypeToken<List<Player>>() {}.type
-            val players: List<Player> = Gson().fromJson(playersJson, playersType)
+            val players: List<Player> = Gson().fromJson(decodedPlayersJson, playersType)
             val is18Plus = backStackEntry.arguments?.getBoolean("is18Plus") ?: false
+            val numUndercover = backStackEntry.arguments?.getInt("numUndercover") ?: 1
+            val numMrWhite = backStackEntry.arguments?.getInt("numMrWhite") ?: 0
 
-            RoleAssignmentScreen(players, is18Plus) { assignedPlayers ->
-                navController.navigate(Screen.Game.createRoute(assignedPlayers))
-            }
+            RoleAssignmentScreen(
+                players = players,
+                is18Plus = is18Plus,
+                numUndercover = numUndercover,
+                numMrWhite = numMrWhite,
+                onGameStart = { assignedPlayers ->
+                    navController.navigate(Screen.Game.createRoute(assignedPlayers))
+                }
+            )
         }
 
         composable(
             route = Screen.Game.route,
-            arguments = listOf(navArgument("players") {
-                type = NavType.StringType
-            })
+            arguments = listOf(navArgument("players") { type = NavType.StringType })
         ) { backStackEntry ->
             val playersJson = backStackEntry.arguments?.getString("players") ?: "[]"
             val decodedJson = URLDecoder.decode(playersJson, "UTF-8")
@@ -107,28 +171,13 @@ fun NavGraph(startDestination: String = Screen.Main.route) {
             GameScreen(
                 players = players,
                 onGameEnd = {
-                    navController.navigate(
-                        Screen.PlayerSelection.createRoute(
-                            players,
-                            false
-                        )
-                    )
+                    navController.navigate(Screen.PlayerSelection.createRoute(players, false))
                 },
                 onResetWords = {
-                    navController.navigate(
-                        Screen.RoleAssignment.createRoute(
-                            players,
-                            false
-                        )
-                    )
+                    navController.navigate(Screen.RoleAssignment.createRoute(players, false, 1, 0))
                 },
                 onNavigateToPlayers = {
-                    navController.navigate(
-                        Screen.PlayerSelection.createRoute(
-                            players,
-                            false
-                        )
-                    )
+                    navController.navigate(Screen.PlayerSelection.createRoute(players, false))
                 }
             )
         }
