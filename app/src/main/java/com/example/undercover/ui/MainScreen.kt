@@ -51,7 +51,6 @@ fun MainScreen(onStartGame: (Int, Boolean) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Titlu
         Text(
             text = "Undercover Game",
             fontSize = 32.sp,
