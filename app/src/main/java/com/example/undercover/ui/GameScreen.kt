@@ -73,7 +73,7 @@ fun GameScreen(
     val isGameRunning =
         activePlayers.size > 2 && undercoverCount < civilianCount + mrWhiteCount
 
-    val startingPlayer = remember {
+    var startingPlayer = remember {
         activePlayers.filter { it.role != "Mr. White" }.randomOrNull()
     }
 
@@ -207,11 +207,16 @@ fun GameScreen(
             text = { Text("${playerToEliminate?.name}") },
             confirmButton = {
                 Button(onClick = {
-                    playerToEliminate?.let {
+                    playerToEliminate?.let { it ->
                         activePlayers.remove(it)
                         eliminatedPlayers.add(it)
                         if (it.role == "Mr. White") {
                             showGuessDialog = true
+                        }
+
+                        if (it == startingPlayer) {
+                            startingPlayer =
+                                activePlayers.filter { it.role != "Mr. White" }.randomOrNull()
                         }
                     }
                     playerToEliminate = null
