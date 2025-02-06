@@ -73,8 +73,8 @@ fun GameScreen(
     val isGameRunning =
         activePlayers.size > 2 && undercoverCount < civilianCount + mrWhiteCount
 
-    var startingPlayer = remember {
-        activePlayers.filter { it.role != "Mr. White" }.randomOrNull()
+    var startingPlayer by remember {
+        mutableStateOf(activePlayers.filter { it.role != "Mr. White" }.randomOrNull())
     }
 
     Scaffold(
@@ -210,13 +210,12 @@ fun GameScreen(
                     playerToEliminate?.let { it ->
                         activePlayers.remove(it)
                         eliminatedPlayers.add(it)
-                        if (it.role == "Mr. White") {
-                            showGuessDialog = true
-                        }
-
                         if (it == startingPlayer) {
                             startingPlayer =
                                 activePlayers.filter { it.role != "Mr. White" }.randomOrNull()
+                        }
+                        if (it.role == "Mr. White") {
+                            showGuessDialog = true
                         }
                     }
                     playerToEliminate = null
@@ -236,7 +235,7 @@ fun GameScreen(
         )
     }
 
-    // Dacă modul "Uituc" este activat, afișăm un dialog în care se poate alege un jucător pentru a vedea cuvântul
+// Dacă modul "Uituc" este activat, afișăm un dialog în care se poate alege un jucător pentru a vedea cuvântul
     if (isForgetfulMode && activePlayers.isNotEmpty()) {
         AlertDialog(
             onDismissRequest = { isForgetfulMode = false },
@@ -266,7 +265,7 @@ fun GameScreen(
         )
     }
 
-    // Dialog pentru afișarea cuvântului jucătorului selectat (din modul "Uituc")
+// Dialog pentru afișarea cuvântului jucătorului selectat (din modul "Uituc")
     selectedPlayerForHint?.let { player ->
         AlertDialog(
             onDismissRequest = { selectedPlayerForHint = null },
