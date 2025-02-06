@@ -167,7 +167,7 @@ fun assignRoles(
 
     roles.shuffle()
 
-    val (civilianWord, undercoverWord) = wordGenerator.generateWords(totalPlayers)
+    val (civilianWord, undercoverWord) = wordGenerator.generateWords()
 
     return players.mapIndexed { index, player ->
         val role = roles[index]

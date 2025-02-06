@@ -22,7 +22,7 @@ class WordGenerator(context: Context) {
         reader.close()
     }
 
-    fun generateWords(numPlayers: Int): Pair<String, String> {
+    fun generateWords(): Pair<String, String> {
         if (wordPairs.isEmpty()) throw IllegalStateException("Word list not loaded")
         var pair = wordPairs.random();
 
