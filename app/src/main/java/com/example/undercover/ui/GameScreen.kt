@@ -125,8 +125,7 @@ fun GameScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     OutlinedButton(
-                        onClick = { showResetConfirmation = true },
-                        enabled = isGameRunning
+                        onClick = { showResetConfirmation = true }
                     ) {
                         Text("Resetează Cuvintele")
                     }
