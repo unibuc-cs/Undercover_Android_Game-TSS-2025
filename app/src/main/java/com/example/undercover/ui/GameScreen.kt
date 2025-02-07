@@ -166,7 +166,11 @@ fun GameScreen(
                 Button(onClick = {
                     showGuessDialog = false
                     val civilianWord = activePlayers.find { it.role == "Civil" }?.word
-                    guessFeedback = if (mrWhiteGuess.equals(civilianWord, ignoreCase = true)) {
+                    val isCorrectGuess = civilianWord?.let {
+                        areWordsSimilar(mrWhiteGuess, it)
+                    } ?: false
+
+                    guessFeedback = if (isCorrectGuess) {
                         "Felicitări! Mr. White a ghicit corect și câștigă jocul!"
                     } else {
                         "Mr. White a greșit! Jocul continuă."
@@ -337,6 +341,51 @@ fun StartingPlayerCard(startingPlayer: Player?) {
             )
         }
     }
+}
+
+
+fun levenshteinDistance(s: String, t: String): Int {
+    val m = s.length
+    val n = t.length
+    val dp = Array(m + 1) { IntArray(n + 1) }
+
+    // Inițializare: transformarea unui șir gol în altul
+    for (i in 0..m) {
+        dp[i][0] = i
+    }
+    for (j in 0..n) {
+        dp[0][j] = j
+    }
+
+    // Calculul distanței pentru fiecare pereche de prefixe
+    for (i in 1..m) {
+        for (j in 1..n) {
+            val cost = if (s[i - 1] == t[j - 1]) 0 else 1
+            dp[i][j] = minOf(
+                dp[i - 1][j] + 1,      // Ștergere
+                dp[i][j - 1] + 1,      // Inserare
+                dp[i - 1][j - 1] + cost // Înlocuire
+            )
+        }
+    }
+    return dp[m][n]
+}
+
+fun areWordsSimilar(word1: String, word2: String, threshold: Double = 0.3): Boolean {
+    val w1 = word1.trim().lowercase()
+    val w2 = word2.trim().lowercase()
+
+    // Dacă ambele cuvinte sunt goale, le considerăm similare
+    if (w1.isEmpty() && w2.isEmpty()) return true
+
+    val distance = levenshteinDistance(w1, w2)
+    val maxLength = maxOf(w1.length, w2.length)
+
+    // Calculăm raportul dintre distanța Levenshtein și lungimea maximă
+    val normalizedDistance = distance.toDouble() / maxLength
+
+    // Dacă raportul este sub sau egal cu pragul, considerăm că cuvintele sunt similare
+    return normalizedDistance <= threshold
 }
 
 @Composable
