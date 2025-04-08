@@ -11,12 +11,12 @@ Jocul se desfășoară în runde, iar fiecare jucător primește un cuvânt secr
 2. Jucători civili (au cuvantul "castron") : Lorena, Tavi
 3. Mr. White (nu are cuvant): Nicoleta
 
-![alt text](image.png)
+![alt text](screenshots/in-game-game-screen.png)
 
 În prima rundă, Stefan zice "plat" iar Diana zice "supa". Nicoleta zice "perisoare. Ea este cea mai suspicioasă si jucatorii o elimină. 
 Jocul continuă până când toți undercover sunt eliminați sau până când undercover reușește să elimine toți jucătorii normali.
 
-![alt text](image-1.png)
+![alt text](screenshots/in-game-game-screen.png)
 
 
 
