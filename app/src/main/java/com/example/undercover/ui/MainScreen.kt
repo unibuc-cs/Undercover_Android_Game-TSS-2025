@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -50,6 +51,7 @@ fun MainScreen(onStartGame: (Int, Boolean) -> Unit) {
     var numPlayers by remember { mutableStateOf("") }
     var is18PlusEnabled by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = Modifier
@@ -84,6 +86,19 @@ fun MainScreen(onStartGame: (Int, Boolean) -> Unit) {
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        AnimatedVisibility(
+            visible = showError,
+            enter = fadeIn(animationSpec = tween(300)),
+            exit = fadeOut(animationSpec = tween(300))
+        ) {
+            Text(
+                text = "Introdu un număr între 3 și 20!",
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+
         OutlinedTextField(
             value = numPlayers,
             onValueChange = {
@@ -100,10 +115,15 @@ fun MainScreen(onStartGame: (Int, Boolean) -> Unit) {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(
+                    if (showError) Modifier.background(MaterialTheme.colorScheme.error.copy(alpha = 0.1f)) else Modifier
+                ),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                unfocusedBorderColor = if (showError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline,
+                errorBorderColor = MaterialTheme.colorScheme.error
             )
         )
 
@@ -133,6 +153,8 @@ fun MainScreen(onStartGame: (Int, Boolean) -> Unit) {
 
         Button(
             onClick = {
+                focusManager.clearFocus()
+
                 val players = numPlayers.toIntOrNull() ?: 0
                 if (players in 3..20) {
                     onStartGame(players, is18PlusEnabled)
@@ -157,19 +179,6 @@ fun MainScreen(onStartGame: (Int, Boolean) -> Unit) {
                 text = "Începe Jocul",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
-            )
-        }
-
-        AnimatedVisibility(
-            visible = showError,
-            enter = fadeIn(animationSpec = tween(300)),
-            exit = fadeOut(animationSpec = tween(300))
-        ) {
-            Text(
-                text = "Introdu un număr între 3 și 20!",
-                color = MaterialTheme.colorScheme.error,
-                fontSize = 14.sp,
-                modifier = Modifier.padding(top = 8.dp)
             )
         }
     }
