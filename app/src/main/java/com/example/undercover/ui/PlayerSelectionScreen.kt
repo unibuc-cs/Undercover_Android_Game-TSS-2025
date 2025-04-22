@@ -100,10 +100,8 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                                 }
                             },
                             onLongClick = {
-                                if (player.name.isNotEmpty()) {
-                                    selectedPlayerIndex = index
-                                    showOptionsDialog = true
-                                }
+                                selectedPlayerIndex = index
+                                showOptionsDialog = true
                             }
                         ),
                     shape = RoundedCornerShape(16.dp),
@@ -205,6 +203,7 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                 onClick = {
                     updatedPlayers = updatedPlayers + Player("", "", "")
                 },
+                enabled = updatedPlayers.size < 20,
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
@@ -249,7 +248,8 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
             onDismissRequest = { showOptionsDialog = false },
             title = {
                 Text(
-                    text = updatedPlayers[selectedPlayerIndex].name,
+                    text = updatedPlayers[selectedPlayerIndex].name.isEmpty()
+                        .let { if (it) "Adaugă jucător" else "Editează jucătorul " + updatedPlayers[selectedPlayerIndex].name },
                     fontWeight = FontWeight.Bold
                 )
             },
@@ -308,15 +308,13 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                             Text("Șterge")
                         }
                     }
-                }
-            },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = { showOptionsDialog = false },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Anulează")
+                    OutlinedButton(
+                        onClick = { showOptionsDialog = false },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Anulează")
+                    }
                 }
             }
         )
