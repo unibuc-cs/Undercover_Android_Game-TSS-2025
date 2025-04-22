@@ -105,8 +105,7 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                                     showOptionsDialog = true
                                 }
                             }
-                        )
-                        .animateItemPlacement(),
+                        ),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = if (player.name.isEmpty())
