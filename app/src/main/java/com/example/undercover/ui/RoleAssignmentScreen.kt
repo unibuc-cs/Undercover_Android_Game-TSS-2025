@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -23,7 +22,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,7 +58,6 @@ fun RoleAssignmentScreen(
     var currentPlayerIndex by remember { mutableIntStateOf(0) }
     var showPopup by remember { mutableStateOf(true) }
     var revealedWord by remember { mutableStateOf<String?>(null) }
-    var showRoleInfo by remember { mutableStateOf(false) }
 
     LaunchedEffect(players) {
         assignedPlayers = assignRoles(players, wordGenerator, is18Plus, numUndercover, numMrWhite)
@@ -127,9 +124,11 @@ fun RoleAssignmentScreen(
                                 Text(
                                     text = revealedWord
                                         ?: "Apasă butonul pentru a vedea rolul și cuvântul tău",
-                                    fontSize = 20.sp,
+                                    fontSize = if (revealedWord != null) 28.sp else 18.sp,
+                                    fontWeight = if (revealedWord != null) FontWeight.ExtraBold else FontWeight.Medium,
                                     textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(8.dp)
+                                    modifier = Modifier.padding(vertical = 12.dp),
+                                    color = if (revealedWord != null) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                                 )
                             }
                         }
@@ -139,10 +138,7 @@ fun RoleAssignmentScreen(
                         Button(
                             onClick = {
                                 if (revealedWord == null) {
-                                    revealedWord = """
-                                        Rol: ${assignedPlayers[currentPlayerIndex].role}
-                                        Cuvânt: ${assignedPlayers[currentPlayerIndex].word}
-                                    """.trimIndent()
+                                    revealedWord = assignedPlayers[currentPlayerIndex].word
                                 } else {
                                     revealedWord = null
                                     if (currentPlayerIndex < assignedPlayers.size - 1) {
@@ -182,45 +178,9 @@ fun RoleAssignmentScreen(
                                 }
                             }
                         }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        TextButton(
-                            onClick = { showRoleInfo = true }
-                        ) {
-                            Text("Informații despre roluri")
-                        }
                     }
                 }
             }
-        }
-
-        if (showRoleInfo) {
-            AlertDialog(
-                onDismissRequest = { showRoleInfo = false },
-                title = { Text("Informații Roluri") },
-                text = {
-                    Column {
-                        Text(
-                            "• Civil: Știe cuvântul și trebuie să identifice Undercover",
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        Text(
-                            "• Undercover: Are un cuvânt similar și trebuie să se ascundă",
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        Text(
-                            "• Mr. White: Nu știe cuvântul și trebuie să-l ghicească",
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                    }
-                },
-                confirmButton = {
-                    Button(onClick = { showRoleInfo = false }) {
-                        Text("Am înțeles")
-                    }
-                }
-            )
         }
     }
 }
