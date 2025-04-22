@@ -16,7 +16,7 @@ Jocul se desfășoară în runde, iar fiecare jucător primește un cuvânt secr
 În prima rundă, Stefan zice "plat" iar Diana zice "supa". Nicoleta zice "perisoare. Ea este cea mai suspicioasă si jucatorii o elimină. 
 Jocul continuă până când toți undercover sunt eliminați sau până când undercover reușește să elimine toți jucătorii normali.
 
-![alt text](screenshots/in-game-game-screen.png)
+![alt text](screenshots/in-game-role-assignment.png)
 
 
 

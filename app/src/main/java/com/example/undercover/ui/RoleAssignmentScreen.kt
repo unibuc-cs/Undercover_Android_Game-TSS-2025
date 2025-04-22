@@ -94,7 +94,7 @@ fun RoleAssignmentScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = revealedWord
-                            ?: "Apasă pe 'Reveal Word' pentru a vedea cuvântul tău.",
+                            ?: "Apasă pe 'Afișează Cuvântul' pentru a vedea cuvântul tău.",
                         fontSize = 18.sp,
                         color = Color.White,
                         textAlign = TextAlign.Center
@@ -125,7 +125,7 @@ fun RoleAssignmentScreen(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = if (revealedWord == null) "Reveal Word" else "Next",
+                                text = if (revealedWord == null) "Afișează Cuvântul" else "Următorul",
                                 fontSize = 18.sp,
                                 color = Color.White
                             )
@@ -133,7 +133,7 @@ fun RoleAssignmentScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                    contentDescription = "Next",
+                                    contentDescription = "Următorul",
                                     tint = Color.White
                                 )
                             }

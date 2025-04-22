@@ -66,11 +66,11 @@ fun MainScreen(onStartGame: (Int, Boolean) -> Unit) {
         OutlinedTextField(
             value = numPlayers,
             onValueChange = { numPlayers = it },
-            label = { Text("Number of Players") },
+            label = { Text("Numărul de jucători") },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Person,
-                    contentDescription = "Number of Players"
+                    contentDescription = "Numărul de jucători"
                 )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -94,7 +94,7 @@ fun MainScreen(onStartGame: (Int, Boolean) -> Unit) {
                 )
             )
             Text(
-                text = "Enable 18+ Words",
+                text = "Activează cuvinte 18+",
                 fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -121,7 +121,7 @@ fun MainScreen(onStartGame: (Int, Boolean) -> Unit) {
             )
         ) {
             Text(
-                text = "Start Game",
+                text = "Începe Jocul",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -133,7 +133,7 @@ fun MainScreen(onStartGame: (Int, Boolean) -> Unit) {
             exit = fadeOut(animationSpec = tween(300))
         ) {
             Text(
-                text = "Minimum 3 players required!",
+                text = "Sunt necesari cel puțin 3 jucători!",
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 14.sp,
                 modifier = Modifier.padding(top = 8.dp)
