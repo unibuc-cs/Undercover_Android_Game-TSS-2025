@@ -26,8 +26,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -328,7 +328,11 @@ fun GameScreen(
                 Column {
                     Text("Jucător: ${player.name}", fontWeight = FontWeight.Medium)
                     Text("Rol: ${player.role}", fontWeight = FontWeight.Medium)
-                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                    )
                     Text(
                         text = player.word,
                         fontSize = 20.sp,
@@ -448,7 +452,11 @@ fun GameStatusDashboard(
                     MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
             )
 
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -550,7 +558,11 @@ fun ActivePlayersCard(
                 )
             }
 
-            Divider(modifier = Modifier.padding(bottom = 12.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+            )
 
             LazyColumn(
                 modifier = Modifier.height(300.dp),
@@ -622,9 +634,10 @@ fun EliminatedPlayersCard(eliminatedPlayers: List<Player>) {
                 fontWeight = FontWeight.Medium
             )
 
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier.padding(vertical = 8.dp),
-                color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.2f)
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
             )
 
             LazyColumn(

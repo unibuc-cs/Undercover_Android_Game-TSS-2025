@@ -38,6 +38,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -56,10 +57,10 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
     BackHandler(enabled = true) { /* Disabled back navigation */ }
 
     var updatedPlayers by remember { mutableStateOf(players) }
-    var selectedCardIndex by remember { mutableStateOf(-1) }
+    var selectedCardIndex by remember { mutableIntStateOf(-1) }
     var inputName by remember { mutableStateOf("") }
     var showOptionsDialog by remember { mutableStateOf(false) }
-    var selectedPlayerIndex by remember { mutableStateOf(-1) }
+    var selectedPlayerIndex by remember { mutableIntStateOf(-1) }
 
     Column(
         modifier = Modifier
@@ -88,6 +89,11 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            for (player in updatedPlayers) {
+                if (player.name.isEmpty()) {
+                    player.name = "dsf"
+                }
+            }
             itemsIndexed(updatedPlayers) { index, player ->
                 Card(
                     modifier = Modifier
