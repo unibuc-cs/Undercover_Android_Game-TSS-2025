@@ -89,11 +89,6 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            for (player in updatedPlayers) {
-                if (player.name.isEmpty()) {
-                    player.name = "dsf"
-                }
-            }
             itemsIndexed(updatedPlayers) { index, player ->
                 Card(
                     modifier = Modifier
