@@ -146,3 +146,4 @@ Undercover_Android_Game/
 ### Alte opțiuni de testare 
 - **Mockito**: pentru simularea dependențelor și testare unitară
 - **Firebase Test Lab**: pentru testarea aplicației pe diferite dispozitive și versiuni Android
+
