@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.tensorflow.lite)
     implementation(libs.gson)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     testImplementation("io.mockk:mockk:1.13.5")
     androidTestImplementation(libs.androidx.junit)
