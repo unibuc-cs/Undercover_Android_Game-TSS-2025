@@ -403,7 +403,7 @@ class TestXmlActivityEspressoTest {
 
 - **toate cele de mai sus, in timp ce folosind Jetpack Compose, scriem totul direct in Kotlin**
 - **in Jetpack Compose, scrie UI-ul ca functii Kotlin (se numesc @Composable functions)**
-- **totul e mai dinamic, mai modular si mai rapid (UI-ul se actualizeaza automat cand datele se schimba)
+- **totul e mai dinamic, mai modular si mai rapid (UI-ul se actualizeaza automat cand datele se schimba)**
 - **Exemplu:**
 ```
 class PlayerSelectionScreenTest {
@@ -434,5 +434,21 @@ class PlayerSelectionScreenTest {
 }
 
 ```
+| Avantaje                   | Compose                                  | XML clasic                                      |
+|-----------------------------|------------------------------------------|-------------------------------------------------|
+| Viteză și flexibilitate UI  | UI mai rapid și mai flexibil             | UI greu de modificat                           |
+| Claritate cod               | Cod mai puțin și mai clar                | Cod mult, separare rigidă XML/Kotlin            |
+| Testare                     | Ușor de testat cu Compose Testing       | Testare mai complicată (Espresso)               |
+| Performanță                 | Performanță mai bună                    | Poate deveni lent cu multe layouturi            |
 
 
+## Concluzie
+
+În proiectul nostru am ales să folosim **Jetpack Compose Testing** în locul framework-ului clasic **Espresso** deoarece:
+
+- Aplicația noastră este dezvoltată integral folosind **Jetpack Compose**, ceea ce face ca testarea nativă în Compose să fie mai naturală și mai eficientă.
+- **Compose Testing** oferă o integrare directă cu componentele UI moderne, permițând scrierea de teste declarative, concise și mai ușor de întreținut.
+- Testele Compose rulează mai rapid pe JVM, fără a necesita emulator sau dispozitiv fizic, accelerând semnificativ ciclul de dezvoltare și feedback.
+- Codul de testare în Compose este mai clar și mai expresiv comparativ cu Espresso, care presupune o configurare mai complexă și o rulare mai lentă.
+
+Deși **Espresso** rămâne un framework puternic pentru aplicațiile Android bazate pe XML sau hibride, în cazul nostru, datorită utilizării exclusive a **Jetpack Compose**, alegerea **Compose Testing** a fost soluția optimă pentru a beneficia de toate avantajele moderne ale platformei Android.
