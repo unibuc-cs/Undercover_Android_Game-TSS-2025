@@ -189,7 +189,7 @@ ex.: <i><b>GameScreenTest</b> testează afișarea corectă a stării inițiale a
 
 - **Teste unitare**
 
-ex.: <i>Clasa <b>GameScreenTest</b> testează afișarea corectă a stării inițiale a ecranului de joc.</i>
+ex.: <i>Clasa <b>WordGenerationTest </b> verifică funcționarea corectă a generatorului de cuvinte.</i>
 
 ```
 @Test
