@@ -252,6 +252,7 @@ ex.: <i>Clasa <b>PlayerSelectionScreenTest </b> verifică comportamentul și int
     }
 
 ```
+---
 
 ### Framework-uri de testare
 
@@ -280,4 +281,158 @@ ex.: <i>Clasa <b>PlayerSelectionScreenTest </b> verifică comportamentul și int
 - **configurarea mai complexă**
 - **rularea mai lentă**
 - **necesita un emulator pentru executie!!**
+
+### Diferente de cod
+
+- **Crearea layout-ului xml similar cu cel creat deja folosind Compose**
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+   xmlns:android="http://schemas.android.com/apk/res/android"
+   android:orientation="vertical"
+   android:layout_width="match_parent"
+   android:layout_height="match_parent"
+   android:padding="16dp">
+
+
+   <EditText
+       android:id="@+id/playerCountEditText"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:hint="Număr de jucători" />
+
+
+   <Button
+       android:id="@+id/startGameButton"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:text="Începe Jocul" />
+
+
+   <TextView
+       android:id="@+id/errorMessageTextView"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:text="Introdu un număr între 3 și 20!"
+       android:visibility="gone" />
+</LinearLayout>
+```
+
+- **Testarea UI ului creat**
+```
+package com.example.undercover.ui
+ 
+ import android.os.Bundle
+ import android.widget.Button
+ import android.widget.EditText
+ import android.widget.TextView
+ import androidx.appcompat.app.AppCompatActivity
+ import com.example.undercover.R
+ 
+ class TestXmlActivity : AppCompatActivity() {
+     override fun onCreate(savedInstanceState: Bundle?) {
+         setTheme(androidx.appcompat.R.style.Theme_AppCompat_Light_NoActionBar)
+         super.onCreate(savedInstanceState)
+         setContentView(R.layout.activity_test)
+ 
+         val playerCountEditText = findViewById<EditText>(R.id.playerCountEditText)
+         val startGameButton = findViewById<Button>(R.id.startGameButton)
+         val errorMessageTextView = findViewById<TextView>(R.id.errorMessageTextView)
+ 
+         startGameButton.setOnClickListener {
+             val playerCountText = playerCountEditText.text.toString()
+             val playerCount = playerCountText.toIntOrNull()
+ 
+             if (playerCount == null || playerCount < 3 || playerCount > 20) {
+                 errorMessageTextView.visibility = TextView.VISIBLE
+             } else {
+                 errorMessageTextView.visibility = TextView.GONE
+             }
+         }
+     }
+ }
+```
+
+- **Testul propriu-zis**
+```
+package com.example.undercover.ui
+
+
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+
+@RunWith(AndroidJUnit4::class)
+class TestXmlActivityEspressoTest {
+
+
+   @get:Rule
+   val activityRule = ActivityScenarioRule(TestXmlActivity::class.java)
+
+
+   @Test
+   fun testTypeAndClick() {
+       onView(withHint("Număr de jucători"))
+           .perform(typeText("2"), closeSoftKeyboard())
+
+
+       onView(withText("Începe Jocul"))
+           .perform(click())
+
+
+       onView(withText("Introdu un număr între 3 și 20!"))
+           .check(matches(isDisplayed()))
+   }
+}
+
+```
+
+| Componentă                  | Rol                                                                 |
+|------------------------------|---------------------------------------------------------------------|
+| `activity_test.xml`          | UI-ul clasic cu EditText + Button + TextView                      |
+| `TestXmlActivity.kt`         | Activitatea Android care încarcă acel XML și pune logica (click pe buton = verificare număr) |
+| `TestXmlActivityEspressoTest.kt` | Testul automatizat Espresso care simulează ce face utilizatorul pe acel XML |
+
+- **toate cele de mai sus, in timp ce folosind Jetpack Compose, scriem totul direct in Kotlin**
+- **in Jetpack Compose, scrie UI-ul ca functii Kotlin (se numesc @Composable functions)**
+- **totul e mai dinamic, mai modular si mai rapid (UI-ul se actualizeaza automat cand datele se schimba)
+- **Exemplu:**
+```
+class PlayerSelectionScreenTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
+    private val initialPlayers = listOf(
+        Player("", "", ""),
+        Player("", "", ""),
+        Player("", "", "")
+    )
+
+    @Test
+    fun addPlayer_increasesListSize() {
+        var lastList: List<Player> = emptyList()
+        composeTestRule.setContent {
+            PlayerSelectionScreen(initialPlayers) { lastList = it }
+        }
+        composeTestRule.onNodeWithContentDescription("Add")
+            .performClick()
+        composeTestRule.onNodeWithText("Adaugă jucător")
+            .assertIsEnabled()
+        composeTestRule.onNodeWithText("Începe jocul")
+            .assertIsNotEnabled()
+    }
+...
+}
+
+```
+
 
