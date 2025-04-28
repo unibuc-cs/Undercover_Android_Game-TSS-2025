@@ -28,7 +28,7 @@ Ambele tipuri de teste sunt esențiale pentru asigurarea calității aplicației
 
 ### Avantaje ale aplicației noastre
 Față de [aplicația originală](https://apps.apple.com/bn/app/undercover-word-party-game/id946882449?uo=2), avem: 
-- Generare de cuvinte din fișier CSV (ușor de extins)
+- Generare de cuvinte din fișier CSV (ușor de extins) ❌ Generare folosind API ChatGPT ✅
 - Opțiunea de a elimina/adăuga cuvinte marcate ca vulgare(18+)
 
 
