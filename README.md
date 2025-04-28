@@ -254,3 +254,30 @@ ex.: <i>Clasa <b>PlayerSelectionScreenTest </b> verifică comportamentul și int
 ```
 
 ### Framework-uri de testare
+
+## Jetpack Compose Testing vs. Espresso
+
+### Jetpack Compose Testing
+ -> Utilizat pentru testarea aplicațiilor construite cu Jetpack Compose. Permite interacțiunea directă cu componentele Compose fără a necesita un dispozitiv sau emulator, rulând rapid pe JVM. 
+
+<b>Avantaje:</b> 
+- **integrare nativa cu Compose**
+- **teste declarative si intuitive**
+
+<b>Dezavantaje:</b> 
+- **limitat exclusiv la aplicatii ce folosesc Compose**
+- **nu poate fi aplicat pe interfete clasice XML**
+
+---
+
+### Espresso
+ -> Utilizat pentru testarea aplicațiilor Android clasice sau hibride, indiferent dacă UI-ul este construit în XML sau Compose. Permite testarea interacțiunilor reale ale utilizatorului cu interfața aplicației și necesită rulare pe un dispozitiv sau emulator.
+
+<b>Avantaje:</b> 
+- **flexibilitatea și suportul pentru interacțiuni complexe (ex. gesturi sau navigare între ecrane)**
+
+<b>Dezavantaje:</b> 
+- **configurarea mai complexă**
+- **rularea mai lentă**
+- **necesita un emulator pentru executie!!**
+
