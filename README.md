@@ -147,3 +147,110 @@ Undercover_Android_Game/
 - **Mockito**: pentru simularea dependențelor și testare unitară
 - **Firebase Test Lab**: pentru testarea aplicației pe diferite dispozitive și versiuni Android
 
+### Tipuri de teste
+
+---
+
+- **Teste UI**
+
+ex.: <i><b>GameScreenTest</b> testează afișarea corectă a stării inițiale a ecranului de joc.</i>
+
+```
+@Test
+    fun gameScreen_displaysCorrectInitialState() {
+        val players = listOf(
+            Player("Stefan", "Civil", "apple"),
+            Player("Diana", "Civil", "apple"),
+            Player("Tavi", "Undercover", "banana"),
+            Player("Nicoleta", "Mr. White", ""),
+            Player("Lorena", "Civil", "apple"),
+        )
+
+        composeTestRule.setContent {
+            GameScreen(
+                players = players,
+                onGameEnd = {},
+                onResetWords = {},
+                onNavigateToPlayers = {}
+            )
+        }
+
+
+        composeTestRule.onAllNodesWithText("Stefan").onFirst().assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("Diana").onFirst().assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("Tavi").onFirst().assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("Nicoleta").onFirst().assertIsDisplayed()
+        composeTestRule.onAllNodesWithText("Lorena").onFirst().assertIsDisplayed()
+    }
+
+```
+
+---
+
+- **Teste unitare**
+
+ex.: <i>Clasa <b>GameScreenTest</b> testează afișarea corectă a stării inițiale a ecranului de joc.</i>
+
+```
+@Test
+    fun testWordGeneration() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val wordGenerator = WordGenerator(context)
+
+        val generatedPairs = List(10) { wordGenerator.generateWords() }
+
+        generatedPairs.forEach { (civilianWord, undercoverWord) ->
+            assertNotNull(civilianWord)
+            assertNotNull(undercoverWord)
+            assertNotEquals(civilianWord, undercoverWord)
+        }
+
+        val uniquePairs = generatedPairs.toSet()
+        assertTrue(uniquePairs.size > 1)
+    }
+
+```
+
+---
+
+- **Fuzzing tests**
+
+Folosesc date de intrare generate aleatoriu pentru a verifica stabilitatea aplicației. Testele acoperă scenarii precum alegerea unui număr random de jucători în ecranul principal, completarea aleatorie a numelor jucătorilor, configurarea aleatorie a rolurilor Undercover și Mr. White și verifica valiarea atunci când sunt introduse date invalide sau incomplete. 
+
+ex.: <i><b>ComposeFuzzingTests</b> include teste pentru diverse ecrane, cum ar fi distribuția rolurilor și validarea input-urilor.</i>
+[Link catre clasa.](https://github.com/unibuc-cs/Undercover_Android_Game-TSS-2025/blob/develop/app/src/androidTest/java/com/example/undercover/ComposeFuzzingTests.kt)
+
+---
+
+- **Teste instrumentate (folosind androidx.compose.ui.test)**
+
+ex.: <i>Clasa <b>PlayerSelectionScreenTest </b> verifică comportamentul și interacțiunea utilizatorului cu ecranul PlayerSelectionScreen, aplicația fiind Android scrisă în Kotlin.</i>
+
+```
+@Test
+    fun startGameButton_enabledOnlyWhenAllNamesSet_andMinSize() {
+        var lastList: List<Player> = emptyList()
+        composeTestRule.setContent {
+            PlayerSelectionScreen(initialPlayers) { lastList = it }
+        }
+        composeTestRule.onNodeWithText("Începe jocul")
+            .assertIsNotEnabled()
+        initialPlayers.indices.forEach { index ->
+            composeTestRule.onNodeWithText("Jucător ${index + 1}")
+                .performClick()
+            composeTestRule.onNodeWithText("Introduceți numele")
+                .performTextInput("P$index")
+            composeTestRule.onNodeWithText("Confirmă")
+                .performClick()
+        }
+        composeTestRule.onNodeWithText("Începe jocul")
+            .assertIsEnabled()
+        composeTestRule.onNodeWithText("Începe jocul")
+            .performClick()
+        assertEquals(3, lastList.size)
+        lastList.forEachIndexed { i, p -> assertEquals("P$i", p.name) }
+    }
+
+```
+
+### Framework-uri de testare
