@@ -1,4 +1,4 @@
-package com.example.undercover
+package com.example.undercover.unit
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
@@ -69,4 +69,4 @@ class WordGenerationTest {
         }
 
     }
-}
+} 

@@ -28,4 +28,4 @@ class TestXmlActivityEspressoTest {
             .check(matches(isDisplayed()))
     }
 
-}
+} 

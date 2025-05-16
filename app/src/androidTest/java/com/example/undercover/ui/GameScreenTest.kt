@@ -1,4 +1,4 @@
-package com.example.undercover
+package com.example.undercover.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -60,4 +60,4 @@ class GameScreenTest {
 
         composeTestRule.onNodeWithText("Jocul s-a terminat").assertIsDisplayed()
     }
-}
+} 

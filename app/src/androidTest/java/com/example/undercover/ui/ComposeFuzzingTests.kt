@@ -1,4 +1,4 @@
-package com.example.undercover
+package com.example.undercover.ui
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +18,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.random.Random
+
 @RunWith(AndroidJUnit4::class)
 class ComposeFuzzingTests {
 
@@ -260,10 +261,7 @@ class ComposeFuzzingTests {
 
         composeTestRule.onNodeWithText("Începe Jocul").performClick()
 
-        // Verify results
         assert(startClicked)
         assert(passedPlayerCount == highPlayerCount.toInt())
     }
-
-
-}
+} 
