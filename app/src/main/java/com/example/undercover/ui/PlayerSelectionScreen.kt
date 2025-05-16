@@ -5,7 +5,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,21 +12,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,8 +54,8 @@ import com.example.undercover.data.Player
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) -> Unit) {
-    BackHandler(enabled = true) {
-    }
+    BackHandler(enabled = true) { /* Disabled back navigation */ }
+
     var updatedPlayers by remember { mutableStateOf(players) }
     var selectedCardIndex by remember { mutableIntStateOf(-1) }
     var inputName by remember { mutableStateOf("") }
@@ -58,7 +65,7 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -69,11 +76,18 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
             color = MaterialTheme.colorScheme.primary
         )
 
+        Text(
+            text = "Apasă lung pentru a edita sau șterge",
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+            modifier = Modifier.padding(top = 4.dp)
+        )
+
         Spacer(modifier = Modifier.height(20.dp))
 
         LazyColumn(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             itemsIndexed(updatedPlayers) { index, player ->
                 Card(
@@ -81,32 +95,47 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                         .fillMaxWidth()
                         .combinedClickable(
                             onClick = {
-                                selectedCardIndex = index
-                                inputName = player.name
+                                if (player.name.isEmpty()) {
+                                    selectedCardIndex = index
+                                    inputName = player.name
+                                }
                             },
                             onLongClick = {
                                 selectedPlayerIndex = index
                                 showOptionsDialog = true
                             }
                         ),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = if (player.name.isEmpty()) MaterialTheme.colorScheme.surfaceVariant
-                        else MaterialTheme.colorScheme.secondaryContainer
-                    )
+                        containerColor = if (player.name.isEmpty())
+                            MaterialTheme.colorScheme.surfaceVariant
+                        else MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = if (player.name.isEmpty())
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        else MaterialTheme.colorScheme.onSecondaryContainer
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Box(
+                    Row(
                         modifier = Modifier
                             .padding(16.dp)
                             .fillMaxWidth(),
-                        contentAlignment = Alignment.Center
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
                             text = if (player.name.isEmpty()) "Jucător ${index + 1}" else player.name,
                             fontSize = 18.sp,
-                            color = if (player.name.isEmpty()) MaterialTheme.colorScheme.onSurfaceVariant
-                            else MaterialTheme.colorScheme.onSecondaryContainer
+                            fontWeight = if (player.name.isEmpty()) FontWeight.Normal else FontWeight.Medium
                         )
+
+                        if (player.name.isNotEmpty()) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Editable",
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)
+                            )
+                        }
                     }
                 }
 
@@ -119,12 +148,26 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                            ),
+                            trailingIcon = {
+                                if (inputName.isNotEmpty()) {
+                                    IconButton(onClick = { inputName = "" }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Clear,
+                                            contentDescription = "Clear"
+                                        )
+                                    }
+                                }
+                            }
                         )
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.End
                         ) {
                             Button(
                                 onClick = {
@@ -132,11 +175,10 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                                         updatedPlayers = updatedPlayers.toMutableList()
                                             .also { it[index] = player.copy(name = inputName) }
                                         selectedCardIndex = -1
+                                        inputName = ""
                                     }
                                 },
-                                modifier = Modifier
-                                    .fillMaxWidth(0.5f)
-                                    .padding(top = 8.dp),
+                                modifier = Modifier.padding(top = 8.dp),
                                 enabled = inputName.isNotEmpty(),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
@@ -152,57 +194,75 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
-            onClick = {
-                updatedPlayers = updatedPlayers + Player("", "", "")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                contentColor = Color.White
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Adaugă jucător", fontSize = 18.sp)
-        }
+            Button(
+                onClick = {
+                    updatedPlayers = updatedPlayers + Player("", "", "")
+                },
+                enabled = updatedPlayers.size < 20,
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add",
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Adaugă jucător")
+            }
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(
-            onClick = { onPlayersSet(updatedPlayers) },
-            enabled = updatedPlayers.all { it.name.isNotEmpty() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
-            )
-        ) {
-            Text("Începe jocul", fontSize = 18.sp)
+            Button(
+                onClick = { onPlayersSet(updatedPlayers) },
+                enabled = updatedPlayers.size >= 3 && updatedPlayers.all { it.name.isNotEmpty() },
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = Color.White
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = "Start",
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Începe jocul")
+            }
         }
     }
 
     if (showOptionsDialog) {
         AlertDialog(
             onDismissRequest = { showOptionsDialog = false },
-            title = { Text("Opțiuni pentru ${updatedPlayers[selectedPlayerIndex].name}") },
-            text = { Text("Ce dorești să faci?") },
+            title = {
+                Text(
+                    text = updatedPlayers[selectedPlayerIndex].name.isEmpty()
+                        .let { if (it) "Adaugă jucător" else "Editează jucătorul " + updatedPlayers[selectedPlayerIndex].name },
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = { Text("Ce dorești să faci cu acest jucător?") },
             confirmButton = {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
                         onClick = {
-                            inputName = ""
+                            inputName = updatedPlayers[selectedPlayerIndex].name
                             updatedPlayers = updatedPlayers.toMutableList().also {
                                 it[selectedPlayerIndex] = it[selectedPlayerIndex].copy(name = "")
                             }
@@ -218,9 +278,10 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             Icon(Icons.Default.Edit, contentDescription = "Editează")
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text("Editează")
                         }
                     }
@@ -235,33 +296,28 @@ fun PlayerSelectionScreen(players: List<Player>, onPlayersSet: (List<Player>) ->
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error,
-                            contentColor = Color.White
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
                         )
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.Center
                         ) {
                             Icon(Icons.Default.Delete, contentDescription = "Șterge")
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text("Șterge")
                         }
                     }
-
-                    Button(
+                    OutlinedButton(
                         onClick = { showOptionsDialog = false },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text("Anulează")
                     }
                 }
-            },
-            dismissButton = {}
+            }
         )
     }
 }

@@ -22,7 +22,8 @@ class WordGenerator(context: Context) {
         reader.close()
     }
 
-    fun generateWords(): Pair<String, String> {
+    fun generateWords(is18Plus: Boolean): Pair<String, String> {
+        // If the game is 18+, filter out words that are not suitable for minors
         if (wordPairs.isEmpty()) throw IllegalStateException("Word list not loaded")
         var pair = wordPairs.random();
 
