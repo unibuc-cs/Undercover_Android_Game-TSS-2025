@@ -34,7 +34,7 @@ class PlayerSelectionScreenTest {
         composeTestRule.setContent {
             PlayerSelectionScreen(initialPlayers) { lastList = it }
         }
-        composeTestRule.onNodeWithContentDescription("Add")
+        composeTestRule.onNodeWithContentDescription("Adaugă")
             .performClick()
         composeTestRule.onNodeWithText("Adaugă jucător")
             .assertIsEnabled()

@@ -40,14 +40,14 @@ class ComposeFuzzingTests {
             })
         }
 
-        composeTestRule.onNodeWithText("Number of Players").performClick()
-        composeTestRule.onNodeWithText("Number of Players").performTextInput(randomPlayerCount)
+        composeTestRule.onNodeWithText("Numărul de jucători").performClick()
+        composeTestRule.onNodeWithText("Numărul de jucători").performTextInput(randomPlayerCount)
 
         if (enable18Plus) {
-            composeTestRule.onNodeWithText("Enable 18+ Words").performClick()
+            composeTestRule.onNodeWithText("Activează cuvinte 18+").performClick()
         }
 
-        composeTestRule.onNodeWithText("Start Game").performClick()
+        composeTestRule.onNodeWithText("Începe Jocul").performClick()
 
         assert(startClicked)
         assert(passedPlayerCount == randomPlayerCount.toInt())
@@ -66,12 +66,12 @@ class ComposeFuzzingTests {
             })
         }
 
-        composeTestRule.onNodeWithText("Number of Players").performClick()
-        composeTestRule.onNodeWithText("Number of Players").performTextInput(invalidCount)
+        composeTestRule.onNodeWithText("Numărul de jucători").performClick()
+        composeTestRule.onNodeWithText("Numărul de jucători").performTextInput(invalidCount)
 
-        composeTestRule.onNodeWithText("Start Game").performClick()
+        composeTestRule.onNodeWithText("Începe Jocul").performClick()
 
-        composeTestRule.onNodeWithText("Minimum 3 players required!").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Introdu un număr între 3 și 20!").assertIsDisplayed()
         assert(!startClicked)
     }
 
@@ -255,10 +255,10 @@ class ComposeFuzzingTests {
             })
         }
 
-        composeTestRule.onNodeWithText("Number of Players").performClick()
-        composeTestRule.onNodeWithText("Number of Players").performTextInput(highPlayerCount)
+        composeTestRule.onNodeWithText("Numărul de jucători").performClick()
+        composeTestRule.onNodeWithText("Numărul de jucători").performTextInput(highPlayerCount)
 
-        composeTestRule.onNodeWithText("Start Game").performClick()
+        composeTestRule.onNodeWithText("Începe Jocul").performClick()
 
         // Verify results
         assert(startClicked)
