@@ -185,7 +185,7 @@ fun RoleAssignmentScreen(
     }
 }
 
-private fun assignRoles(
+fun assignRoles(
     players: List<Player>,
     wordGenerator: WordGenerator,
     is18Plus: Boolean,
