@@ -99,4 +99,43 @@ class PlayerSelectionScreenTest {
         assertEquals(3, lastList.size)
         lastList.forEachIndexed { i, p -> assertEquals("P$i", p.name) }
     }
+
+    // Same test written by chantGPT
+    @Test
+    fun startGameButton_isEnabledOnlyWhenAllPlayerNamesAreSet() {
+        var selectedPlayers: List<Player> = emptyList()
+
+        composeTestRule.setContent {
+            PlayerSelectionScreen(initialPlayers) { selectedPlayers = it }
+        }
+
+        // Verify that the "Start Game" button is initially disabled
+        composeTestRule.onNodeWithText("Începe jocul")
+            .assertIsNotEnabled()
+
+        // Input valid names for all players
+        initialPlayers.indices.forEach { index ->
+            composeTestRule.onNodeWithText("Jucător ${index + 1}")
+                .performClick()
+            composeTestRule.onNodeWithText("Introduceți numele")
+                .performTextInput("P$index")
+            composeTestRule.onNodeWithText("Confirmă")
+                .performClick()
+        }
+
+        // Verify that the "Start Game" button is now enabled
+        composeTestRule.onNodeWithText("Începe jocul")
+            .assertIsEnabled()
+
+        // Simulate starting the game
+        composeTestRule.onNodeWithText("Începe jocul")
+            .performClick()
+
+        // Verify the correct player list was passed
+        assertEquals(initialPlayers.size, selectedPlayers.size)
+        selectedPlayers.forEachIndexed { index, player ->
+            assertEquals("P$index", player.name)
+        }
+    }
+
 }

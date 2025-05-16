@@ -156,6 +156,63 @@ class ComposeFuzzingTests {
         }
     }
 
+    //same test, written with chantGPT
+    @Test
+    fun roleConfigurationScreen_appliesValidRoleDistributionCorrectly() {
+        val playerCount = Random.nextInt(5, 13)
+        val players = List(playerCount) { index ->
+            Player(name = "Player${index + 1}", role = "", word = "")
+        }
+        val is18PlusMode = Random.nextBoolean()
+
+        var resultPlayers: List<Player>? = null
+        var resultUndercoverCount = 0
+        var resultMrWhiteCount = 0
+
+        composeTestRule.setContent {
+            RoleConfigurationScreen(
+                players = players,
+                is18Plus = is18PlusMode,
+                onRolesConfigured = { updatedPlayers, numUndercover, numMrWhite ->
+                    resultPlayers = updatedPlayers
+                    resultUndercoverCount = numUndercover
+                    resultMrWhiteCount = numMrWhite
+                }
+            )
+        }
+
+        val maxUndercover = (playerCount / 3).coerceAtLeast(1)
+        val chosenUndercover = Random.nextInt(1, maxUndercover + 1)
+
+        val maxMrWhite = (playerCount / 4).coerceAtLeast(1)
+        val chosenMrWhite = if (playerCount >= 5) Random.nextInt(0, maxMrWhite + 1) else 0
+
+        // Ensure at least one civilian
+        val totalSpecialRoles = chosenUndercover + chosenMrWhite
+        if (totalSpecialRoles < playerCount) {
+            // Input number of Undercover roles
+            composeTestRule.onNodeWithText("Număr Undercover").performClick()
+            composeTestRule.onNodeWithText("Număr Undercover")
+                .performTextInput(chosenUndercover.toString())
+
+            // Input number of Mr. White roles
+            composeTestRule.onNodeWithText("Număr Mr. White").performClick()
+            composeTestRule.onNodeWithText("Număr Mr. White")
+                .performTextInput(chosenMrWhite.toString())
+
+            // Confirm button should be enabled and trigger configuration
+            composeTestRule.onNodeWithText("Confirmă")
+                .assertIsEnabled()
+                .performClick()
+
+            // Assertions
+            assertEquals(chosenUndercover, resultUndercoverCount)
+            assertEquals(chosenMrWhite, resultMrWhiteCount)
+            assertEquals(playerCount, resultPlayers?.size)
+        }
+    }
+
+
     @Test
     fun roleConfigurationScreen_invalidDistribution() {
         // Create a scenario with too many special roles
