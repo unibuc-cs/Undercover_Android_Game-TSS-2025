@@ -533,3 +533,127 @@ fun areWordsSimilar(a: String, b: String): Boolean {
 | Pentru UI folosește Compose | Jetpack Compose Testing este dedicat pentru testarea logicii declarative |
 | Documentează limitarea      | Specifică în README că mutation testing nu funcționează pe UI Android    |
 
+## ChatGPT
+Pentru a verifica calitatea testelor si, totodata, pentru a intelege cat am putea utiliza pe viitor inteligenta artificiala in testare, am generat aceleasi teste folosind tool-ul ChatGPT.
+
+Exemplu:
+```
+//Test scris de noi
+    @Test
+    fun startGameButton_enabledOnlyWhenAllNamesSet_andMinSize() {
+        var lastList: List<Player> = emptyList()
+        composeTestRule.setContent {
+            PlayerSelectionScreen(initialPlayers) { lastList = it }
+        }
+        composeTestRule.onNodeWithText("Începe jocul")
+            .assertIsNotEnabled()
+        initialPlayers.indices.forEach { index ->
+            composeTestRule.onNodeWithText("Jucător ${index + 1}")
+                .performClick()
+            composeTestRule.onNodeWithText("Introduceți numele")
+                .performTextInput("P$index")
+            composeTestRule.onNodeWithText("Confirmă")
+                .performClick()
+        }
+        composeTestRule.onNodeWithText("Începe jocul")
+            .assertIsEnabled()
+        composeTestRule.onNodeWithText("Începe jocul")
+            .performClick()
+        assertEquals(3, lastList.size)
+        lastList.forEachIndexed { i, p -> assertEquals("P$i", p.name) }
+    }
+
+//Test scris de ChatGPT
+
+@Test
+    fun startGameButton_isEnabledOnlyWhenAllPlayerNamesAreSet() {
+        var selectedPlayers: List<Player> = emptyList()
+
+        composeTestRule.setContent {
+            PlayerSelectionScreen(initialPlayers) { selectedPlayers = it }
+        }
+
+        // Verify that the "Start Game" button is initially disabled
+        composeTestRule.onNodeWithText("Începe jocul")
+            .assertIsNotEnabled()
+
+        // Input valid names for all players
+        initialPlayers.indices.forEach { index ->
+            composeTestRule.onNodeWithText("Jucător ${index + 1}")
+                .performClick()
+            composeTestRule.onNodeWithText("Introduceți numele")
+                .performTextInput("P$index")
+            composeTestRule.onNodeWithText("Confirmă")
+                .performClick()
+        }
+
+        // Verify that the "Start Game" button is now enabled
+        composeTestRule.onNodeWithText("Începe jocul")
+            .assertIsEnabled()
+
+        // Simulate starting the game
+        composeTestRule.onNodeWithText("Începe jocul")
+            .performClick()
+
+        // Verify the correct player list was passed
+        assertEquals(initialPlayers.size, selectedPlayers.size)
+        selectedPlayers.forEachIndexed { index, player ->
+            assertEquals("P$index", player.name)
+        }
+    }
+```
+
+Rezultate consideraere:
+- Cod mai coerent si mai explicit
+- Test passed
+
+Rezultate considerate de ChatGPT:
+```
+✅ Functionality
+Aspect	Original	Rewritten
+Test Logic	Verifies that "Începe jocul" is enabled only after all names are entered	Same logic retained — exact behavioral check
+Assertions	All functional assertions are preserved	Same assertions, with clearer structure
+Behavior Tested	Initial disabled state, name input, button enabled, correct player list	Identical sequence tested
+
+✔️ Both versions are functionally equivalent.
+
+✨ Readability
+Aspect	Original	Rewritten
+Variable Names	lastList, index, p	selectedPlayers, index, player
+Comments	None	Added throughout for clarity
+Clarity	Logic is correct but terse	More expressive and beginner-friendly
+
+✔️ Rewritten version improves clarity and understanding.
+
+🧱 Structure & Formatting
+Aspect	Original	Rewritten
+Line spacing	Dense, few breaks	Spaced out logically for better flow
+Method chaining	Compressed into longer lines	Line breaks used to improve visual parsing
+Logical blocks	All logic is in one large block	Clearly separated: setup, input, assert
+
+✔️ Rewritten version uses better structure for maintainability.
+
+🧾 Naming & Semantics
+Aspect	Original	Rewritten
+Function Name	startGameButton_enabledOnlyWhenAllNamesSet_andMinSize	startGameButton_isEnabledOnlyWhenAllPlayerNamesAreSet
+Variable Names	Less descriptive	More intuitive and semantic
+
+✔️ Rewritten version provides more meaningful names, aiding readability.
+
+🔧 Maintainability
+Aspect	Original	Rewritten
+Reusability	Harder to extract logic	Logic is cleanly modular
+Modifiability	Slightly harder to adjust or expand	Easier to extend (e.g. change player count, text labels)
+
+✔️ Rewritten version is easier to maintain, extend, and debug.
+
+🧠 Summary
+Criteria	Winner	Reason
+Functionality	Tie	Same test logic
+Readability	Rewritten	Clearer variable names and structure
+Structure	Rewritten	Logical grouping of test steps
+Naming	Rewritten	More descriptive identifiers
+Maintainability	Rewritten	Easier to adjust or extend
+
+Overall Winner: 🏆 Rewritten Version
+```
