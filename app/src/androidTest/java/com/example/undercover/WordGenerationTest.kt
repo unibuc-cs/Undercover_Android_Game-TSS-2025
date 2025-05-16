@@ -16,7 +16,7 @@ class WordGenerationTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val wordGenerator = WordGenerator(context)
 
-        val generatedPairs = List(10) { wordGenerator.generateWords() }
+        val generatedPairs = List(10) { wordGenerator.generateWords(false) }
 
         generatedPairs.forEach { (civilianWord, undercoverWord) ->
             assertNotNull(civilianWord)
@@ -61,7 +61,7 @@ class WordGenerationTest {
         val wordGenerator = WordGenerator(context)
 
         repeat(10) {
-            val (civilian, undercover) = wordGenerator.generateWords()
+            val (civilian, undercover) = wordGenerator.generateWords(false)
 
             val similarityPercent = calculateSimilarityPercentage(civilian, undercover)
             assertTrue("Similarity too low: $similarityPercent", similarityPercent > 25.0)
