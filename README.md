@@ -441,9 +441,18 @@ class PlayerSelectionScreenTest {
 | Testare                     | Ușor de testat cu Compose Testing       | Testare mai complicată (Espresso)               |
 | Performanță                 | Performanță mai bună                    | Poate deveni lent cu multe layouturi            |
 
+## Concluzie
+
+În proiectul nostru am ales să folosim **Jetpack Compose Testing** în locul framework-ului clasic **Espresso** deoarece:
+
+- Aplicația noastră este dezvoltată integral folosind **Jetpack Compose**, ceea ce face ca testarea nativă în Compose să fie mai naturală și mai eficientă.
+- **Compose Testing** oferă o integrare directă cu componentele UI moderne, permițând scrierea de teste declarative, concise și mai ușor de întreținut.
+- Testele Compose rulează mai rapid pe JVM, fără a necesita emulator sau dispozitiv fizic, accelerând semnificativ ciclul de dezvoltare și feedback.
+- Codul de testare în Compose este mai clar și mai expresiv comparativ cu Espresso, care presupune o configurare mai complexă și o rulare mai lentă.
+
+Deși **Espresso** rămâne un framework puternic pentru aplicațiile Android bazate pe XML sau hibride, în cazul nostru, datorită utilizării exclusive a **Jetpack Compose**, alegerea **Compose Testing** a fost soluția optimă pentru a beneficia de toate avantajele moderne ale platformei Android.
 
 ## Mutation Testing - Generator de Mutanți în proiectul Undercover (Android + Jetpack Compose)
- Descriere generală
 Mutation Testing este o metodă de testare software care implică generarea de versiuni ușor modificate („mutanți”) ale codului sursă. Scopul este de a verifica dacă testele unitare pot detecta aceste modificări. Dacă un test nu pică în fața unui mutant, este considerat slab.
 
 Scopul principal: evaluarea robusteții testelor automate.
@@ -524,14 +533,3 @@ fun areWordsSimilar(a: String, b: String): Boolean {
 | Pentru UI folosește Compose | Jetpack Compose Testing este dedicat pentru testarea logicii declarative |
 | Documentează limitarea      | Specifică în README că mutation testing nu funcționează pe UI Android    |
 
-
-## Concluzie
-
-În proiectul nostru am ales să folosim **Jetpack Compose Testing** în locul framework-ului clasic **Espresso** deoarece:
-
-- Aplicația noastră este dezvoltată integral folosind **Jetpack Compose**, ceea ce face ca testarea nativă în Compose să fie mai naturală și mai eficientă.
-- **Compose Testing** oferă o integrare directă cu componentele UI moderne, permițând scrierea de teste declarative, concise și mai ușor de întreținut.
-- Testele Compose rulează mai rapid pe JVM, fără a necesita emulator sau dispozitiv fizic, accelerând semnificativ ciclul de dezvoltare și feedback.
-- Codul de testare în Compose este mai clar și mai expresiv comparativ cu Espresso, care presupune o configurare mai complexă și o rulare mai lentă.
-
-Deși **Espresso** rămâne un framework puternic pentru aplicațiile Android bazate pe XML sau hibride, în cazul nostru, datorită utilizării exclusive a **Jetpack Compose**, alegerea **Compose Testing** a fost soluția optimă pentru a beneficia de toate avantajele moderne ale platformei Android.
