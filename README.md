@@ -442,6 +442,89 @@ class PlayerSelectionScreenTest {
 | Performanță                 | Performanță mai bună                    | Poate deveni lent cu multe layouturi            |
 
 
+## Mutation Testing - Generator de Mutanți în proiectul Undercover (Android + Jetpack Compose)
+ Descriere generală
+Mutation Testing este o metodă de testare software care implică generarea de versiuni ușor modificate („mutanți”) ale codului sursă. Scopul este de a verifica dacă testele unitare pot detecta aceste modificări. Dacă un test nu pică în fața unui mutant, este considerat slab.
+
+Scopul principal: evaluarea robusteții testelor automate.
+
+Exemplu simplu de mutație:
+``` 
+// Cod original
+if (a > b) { ... }
+
+// Mutant generat automat
+if (a >= b) { ... }
+```
+Dacă testele nu detectează această modificare, înseamnă că ele nu validează corect comportamentul așteptat.
+
+Framework folosit – PIT (Pitest)
+Pentru limbajele Kotlin/Java care rulează pe JVM, framework-ul standard pentru mutation testing este:
+
+🔗 PIT – https://pitest.org/ – un instrument robust folosit în mod frecvent pe proiecte Java/Kotlin backend.
+
+Configurare PIT în proiect Gradle (JVM):
+1. În build.gradle (root):
+```
+buildscript {
+    dependencies {
+        classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.7.4'
+    }
+}
+```
+2. În app/build.gradle:
+```
+apply plugin: 'info.solidsoft.pitest'
+
+pitest {
+    targetClasses = ['com.example.undercover.data.*']
+    targetTests = ['com.example.undercover.*']
+    mutators = ['STRONGER']
+    outputFormats = ['HTML']
+    timestampedReports = false
+}
+```
+3. Comanda pentru rulare:
+```
+./gradlew pitest
+```
+🗂️ Raportul HTML se generează în:
+```
+app/build/reports/pitest/index.html
+```
+## De ce NU funcționează mutation testing pe aplicația noastră Jetpack Compose ##
+
+| ❌ Problema                          | ✅ Explicație                                                                  |
+| ----------------------------------- | ----------------------------------------------------------------------------- |
+| Nu rulează pe teste instrumentate   | PIT funcționează doar pe JVM pur, nu pe teste Android cu context real         |
+| Cod Compose nu e logică executabilă | `@Composable` este declarativ, nu poate fi „mutat” logic                      |
+| Context Android blochează testarea  | Orice clasă care folosește `Context`, `Assets`, `Activity` devine netestabilă |
+| UI-ul nu poate fi „mutat” logic     | Codul Compose descrie UI, nu oferă logică testabilă                           |
+
+## Exemple de cod compatibil / incompatibil ##
+
+❌ Cod incompatibil:
+```
+@Composable
+fun MainScreen() {
+    // UI declarativ
+}
+```
+✅ Cod compatibil (doar dacă e scos din context Android):
+```
+fun areWordsSimilar(a: String, b: String): Boolean {
+    val distance = levenshteinDistance(a, b)
+    return distance < 2
+}
+```
+| ✅ Soluție                   | 💬 Descriere                                                             |
+| --------------------------- | ------------------------------------------------------------------------ |
+| Extrage logică pură         | Creează un modul `:core` fără `android.*` și `@Composable`               |
+| Rulează PIT doar pe `:core` | Aplică mutation testing pe module standalone, scrise doar în Kotlin JVM  |
+| Pentru UI folosește Compose | Jetpack Compose Testing este dedicat pentru testarea logicii declarative |
+| Documentează limitarea      | Specifică în README că mutation testing nu funcționează pe UI Android    |
+
+
 ## Concluzie
 
 În proiectul nostru am ales să folosim **Jetpack Compose Testing** în locul framework-ului clasic **Espresso** deoarece:
